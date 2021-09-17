@@ -5,12 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ValidateEnum {
+public enum Gender {
     GENDER_MALE("M"),
     GENDER_FEMALE("F");
 
-
     private final String genderType;
-
-
 }

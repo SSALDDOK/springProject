@@ -32,15 +32,12 @@ public @interface ValidationNumberField {
 
     String regex() default "";
 
-//    ValidateEnum test();
-
 
     @Slf4j
     class NumberValidator implements ConstraintValidator<ValidationNumberField, String> {
         private String name;
         private int length;
         private String regex;
-//        private String test;
 
         @Override
         public void initialize(ValidationNumberField constraintAnnotation) {
@@ -48,12 +45,11 @@ public @interface ValidationNumberField {
             name = constraintAnnotation.name();
             length = constraintAnnotation.length();
             regex = constraintAnnotation.regex();
-//            test = constraintAnnotation.test().getRegex();
         }
 
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            return checkValidate(value, context) ;
+            return checkValidate(value, context);
 
         }
 
@@ -70,7 +66,6 @@ public @interface ValidationNumberField {
 
             return true;
         }
-
 
         private void addMsgMethod(ConstraintValidatorContext context, String msg) {
             context.disableDefaultConstraintViolation();

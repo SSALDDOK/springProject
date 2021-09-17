@@ -6,6 +6,7 @@ public class ValidateRegex {
     public static final String emailRegex ="^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$";
     public static final String passwordRegex="^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d~!@#$%^&*()+|=]{8,20}$";
     public static final String birthRegex ="^(19[0-9][0-9]|20\\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$";
+    public static final String nameRegex = "^[가-힣]+$";
 
 
     //이름

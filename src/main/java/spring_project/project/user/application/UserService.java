@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
-import spring_project.project.user.infrastructure.repository.UserJpaRepository;
+import spring_project.project.user.domain.service.UserRepository;
 
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
@@ -22,9 +22,9 @@ public class UserService {
      * 회원조회 list
      */
 
-    private final UserJpaRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserService(UserJpaRepository userRepository) {
+    public UserService(UserRepository userRepository) {
 
         this.userRepository = userRepository;
     }
@@ -49,8 +49,7 @@ public class UserService {
 
 
         validateDuplicateUser(user);
-        userRepository.save(user);
-        return user;
+        return userRepository.save(user);
     }
 
     private void validateDuplicateUser(User user) {

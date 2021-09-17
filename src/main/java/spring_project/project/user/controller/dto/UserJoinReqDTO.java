@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationNumberField;
 
-import static spring_project.project.common.enums.ValidateEnum.GENDER_FEMALE;
-import static spring_project.project.common.enums.ValidateEnum.GENDER_MALE;
+import javax.validation.constraints.NotBlank;
+
+import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
+import static spring_project.project.common.enums.Gender.GENDER_MALE;
 import static spring_project.project.common.enums.ValidateRegex.*;
 
 
@@ -31,6 +33,7 @@ public class UserJoinReqDTO {
 
     private String userName; //이름
 
+    @NotBlank
     private String address; //주소
 
     @ValidationNumberField(name = passwordName, length = 20, regex = passwordRegex)
