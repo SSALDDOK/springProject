@@ -7,8 +7,10 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.service.UserRepository;
 
-import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
-import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
+import java.util.List;
+import java.util.Optional;
+
+import static spring_project.project.common.enums.ErrorCode.*;
 
 
 @Slf4j
@@ -44,7 +46,6 @@ public class UserService {
                 .birth(command.getBirth())
                 .gender(command.getGender())
                 .userBasicInfo(command.getUserBasicInfo())
-                .createAt(command.getCreateAt())
                 .build();
 
 
@@ -66,53 +67,65 @@ public class UserService {
                 });
     }
 
-  /*
-    *//**
-     * 회원 수정
-     *
-     * @Param UserUpdateDto
-     *//*
-    public User modify(UserModifyReqDTO dto) {
+
+/**
+ *회원 수정
+ *@Param UserUpdateDto
+ */
+  public User modify(UserCommand command) {
+
+      Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
+
+      if (findOne.isEmpty()) {
+          throw new CustomException(EMPTY_USER);
+      }
+
+      boolean findOnePhoneNum = findOne.get().getUserBasicInfo().getPhoneNumber()
+              .equals(command.getUserBasicInfo().getPhoneNumber());
+
+      if (findOnePhoneNum) {
+          throw new CustomException(DUPLICATE_PHONE_NUM);
+      }
+
+      User user = User.builder()
+              .userEmail(command.getUserEmail())
+              .userName(command.getUserName())
+              .gender(command.getGender())
+              .birth(command.getBirth())
+              .password(command.getPassword())
+              .userBasicInfo(command.getUserBasicInfo())
+              .build();
+
+      userRepository.save(user);
+      return user;
+
+  }
 
 
-        Optional<User> findOne = userRepository.findByUserEmail(dto.getUserEmail());
-        User user = User.builder()
-                .userEmail(dto.getUserEmail())
-                .userName(dto.getUserName())
-                .gender(dto.getGender())
-                .password(dto.getPassword())
-                .userBasicInfo(dto.getUserBasicInfo())
-                .createAt(dto.getCreateAt())
-                .updateAt(LocalDateTime.now())
-                .build();
+    /**
+     *회원 탈퇴
+     *@Param UserDeleteDto
+     */
 
-        if (findOne.isEmpty()) {
-            throw new IllegalStateException("없는 회원입니다");
-        } else {
-            userRepository.save(user);
+    public List<User> delete(UserCommand command) {
+
+        Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
+
+        if(findOne.isEmpty()){
+            throw new CustomException(EMPTY_USER);
         }
 
-        return user;
-
-    }
-
-
-    *//**
-     * 회원 탈퇴
-     *
-     * @Param UserDeleteDto
-     *//*
-
-    public void delete(UserDeleteReqDTO dto) {
-
         User user = User.builder()
-                .userEmail(dto.getUserEmail())
+                .userEmail(command.getUserEmail())
                 .build();
 
         userRepository.deleteById(user.getUserEmail());
+
+        return userRepository.findAll();
+
     }
 
-    *//**
+    /**
      * 회원 목록 조회
      *
      * @Param page, pageCount

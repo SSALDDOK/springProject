@@ -6,11 +6,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import spring_project.project.user.controller.dto.UserDeleteReqDTO;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
+import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -50,28 +54,38 @@ public class UserController {
         //3.Service에서 받아온 User객체 반환받기
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-/*
-    *//**
-     * 회원 수정
-     *//*
-    @PutMapping("/modify")
-    public ResponseEntity<User> modify(@RequestBody UserModifyReqDTO dto) {
-        User user = userService.modify(dto);
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
 
+   /**
+    *회원 수정
+    */
+@PutMapping("/modify")
+public ResponseEntity<User> modify(@RequestBody UserModifyReqDTO dto) {
+    //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
+    UserCommand userCommand = requestMapper.toCommand(dto);
 
-    *//**
-     * 회원 탈퇴
-     *//*
+    //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
+    User user = userService.modify(userCommand);
+
+    //3.Service 성공/실패 확인
+    return new ResponseEntity<>(user, HttpStatus.OK);
+}
+
+    /**
+     *회원 탈퇴
+     */
     @DeleteMapping("/delete")
-    public String delete(@RequestBody UserDeleteReqDTO dto) {
+    public ResponseEntity<Object> delete(@RequestBody UserDeleteReqDTO dto) {
+        //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
+        UserCommand userCommand = requestMapper.toCommand(dto);
 
-        userService.delete(dto);
-        return "ok";
+        //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
+        List<User> users = userService.delete(userCommand);
+
+        //3.Service 성공/실패 확인
+        return new ResponseEntity<>(users,HttpStatus.OK);
     }
 
-    *//**
+    /**
      * 회원 목록 조회
      *//*
     @GetMapping("/users/{page}/{pageCount}")

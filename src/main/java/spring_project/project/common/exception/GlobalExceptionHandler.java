@@ -45,6 +45,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleCustomException(CustomException e) {
         log.error("handleCustomException throw CustomException : {}", e.getErrorCode());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(e.getErrorCode().getDetail());
+                .body(ErrorResponse.builder()
+                        .status(e.getErrorCode().getHttpStatus().value())
+                        .error(e.getErrorCode().getHttpStatus().name())
+                        .code(e.getErrorCode().name())
+                        .message(e.getErrorCode().getDetail())
+                        .build()
+                );
     }
 }

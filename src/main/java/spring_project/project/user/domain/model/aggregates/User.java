@@ -1,6 +1,7 @@
 package spring_project.project.user.domain.model.aggregates;
 
 import lombok.*;
+import spring_project.project.user.domain.model.valueobjects.BaseTime;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class User {
+public class User extends BaseTime {
 
     @Id
     @Column(name = "user_email")
@@ -32,10 +33,5 @@ public class User {
     @Column(name = "birth")
     private String birth; //생년월일
 
-    @Column(name = "create_at")
-    private LocalDateTime createAt;
-
-    @Column(name="update_at")
-    private LocalDateTime updateAt;
 
 }
