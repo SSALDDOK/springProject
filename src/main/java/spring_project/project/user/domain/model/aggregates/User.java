@@ -5,7 +5,6 @@ import spring_project.project.user.domain.model.valueobjects.BaseTime;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

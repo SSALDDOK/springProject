@@ -2,6 +2,7 @@ package spring_project.project.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,7 +30,9 @@ public class UserController {
      * 회원목록조회 GET ("/list")
      */
 
+    //받아온 값을 기능적으로 구현할수 있는 서비스 단으로 넘기기 위해서 사용
     private final UserService userService;
+    //받아온 dto의 값을 하나의 객체로 매핑 시켜주는 역할
     private final RequestMapper requestMapper;
 
     @Autowired
@@ -41,6 +44,7 @@ public class UserController {
 
     /**
      * 회원 가입
+     * @Param UserJoinReqDTO
      */
     @PostMapping("/join")
     public ResponseEntity<User> joinReq(@RequestBody @Validated UserJoinReqDTO dto) {
@@ -57,9 +61,10 @@ public class UserController {
 
    /**
     *회원 수정
+    * @Param UserModifyReqDTO
     */
 @PutMapping("/modify")
-public ResponseEntity<User> modify(@RequestBody UserModifyReqDTO dto) {
+public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto) {
     //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
     UserCommand userCommand = requestMapper.toCommand(dto);
 
@@ -72,9 +77,10 @@ public ResponseEntity<User> modify(@RequestBody UserModifyReqDTO dto) {
 
     /**
      *회원 탈퇴
+     * @Param UserDeleteReqDTO
      */
     @DeleteMapping("/delete")
-    public ResponseEntity<Object> delete(@RequestBody UserDeleteReqDTO dto) {
+    public ResponseEntity<Object> delete(@RequestBody @Validated UserDeleteReqDTO dto) {
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
         UserCommand userCommand = requestMapper.toCommand(dto);
 
@@ -87,15 +93,21 @@ public ResponseEntity<User> modify(@RequestBody UserModifyReqDTO dto) {
 
     /**
      * 회원 목록 조회
-     *//*
+     * @Param page,pageCount
+     */
     @GetMapping("/users/{page}/{pageCount}")
     public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {
 
+        //경로변수로 받은 페이지,페이지 수 -> service
         Page<User> list = userService.list(page, pageCount);
+
+        //페이지 정보에 맞춰 가져온 users 조회
         List<User> users = list.getContent();
+
         log.info("list ={}", list);
+
+        //service 성공/실패 확인
         return new ResponseEntity<>(users, HttpStatus.OK);
 
     }
-    */
 }
