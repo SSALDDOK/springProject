@@ -9,6 +9,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Builder
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class User extends BaseTime {

@@ -7,6 +7,7 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class UserBasicInfo {
