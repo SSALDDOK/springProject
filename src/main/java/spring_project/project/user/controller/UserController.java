@@ -85,10 +85,10 @@ public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto)
         UserCommand userCommand = requestMapper.toCommand(dto);
 
         //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
-        List<User> users = userService.delete(userCommand);
+        userService.delete(userCommand);
 
         //3.Service 성공/실패 확인
-        return new ResponseEntity<>(users,HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
@@ -103,8 +103,6 @@ public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto)
 
         //페이지 정보에 맞춰 가져온 users 조회
         List<User> users = list.getContent();
-
-        log.info("list ={}", list);
 
         //service 성공/실패 확인
         return new ResponseEntity<>(users, HttpStatus.OK);

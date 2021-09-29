@@ -9,7 +9,6 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.service.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 import static spring_project.project.common.enums.ErrorCode.*;
@@ -84,24 +83,7 @@ public class UserService {
  */
   public User modify(UserCommand command) {
 
-      //DB에 해당 유저가 존재하는 지 확인
-      Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
-
-      //수정할 회원이 없을 경우
-      if (findOne.isEmpty()) {
-          throw new CustomException(EMPTY_USER);
-      }
-
-      //찾은 회원이 등록한 번호와 수정할 번호가 중복될 경우
-      boolean findOnePhoneNum = findOne.get().getUserBasicInfo().getPhoneNumber()
-              .equals(command.getUserBasicInfo().getPhoneNumber());
-
-
-      if (findOnePhoneNum) {
-          throw new CustomException(DUPLICATE_PHONE_NUM);
-      }
-
-      //유효성 검사 통과 시 ㅇㅇ
+      //유효성 검사 통과 시
      User user = User.builder()
               .userEmail(command.getUserEmail())
               .userName(command.getUserName())
@@ -111,9 +93,24 @@ public class UserService {
               .userBasicInfo(command.getUserBasicInfo())
               .build();
 
-      userRepository.save(user);
-      return user;
+      //DB에 해당 유저가 존재하는 지 확인
+      Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
+      //DB에 해당 전화번호가 존재하는 지 확인
+      Optional<User> findOnePhoneNum = userRepository.findByUserBasicInfoPhoneNumber(command.getUserBasicInfo().getPhoneNumber());
 
+      //수정할 회원이 없을 경우
+      if (findOne.isEmpty()) {
+          throw new CustomException(EMPTY_USER);
+      }
+
+      //수정할 회원의 번호가 이미 존재하는 번호라면?
+      if (findOnePhoneNum.isPresent()) {
+          throw new CustomException(DUPLICATE_PHONE_NUM);
+      }
+
+      userRepository.save(user);
+
+      return user;
   }
 
 
@@ -122,12 +119,12 @@ public class UserService {
      *@Param UserDeleteDto
      */
 
-    public List<User> delete(UserCommand command) {
+    public void delete(UserCommand command) {
 
         Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
 
         if(findOne.isEmpty()){
-            throw new CustomException(EMPTY_USER);
+            throw new CustomException(EMPTY_DELETE_USER);
         }
 
         User user = User.builder()
@@ -135,9 +132,6 @@ public class UserService {
                 .build();
 
         userRepository.deleteById(user.getUserEmail());
-
-        return userRepository.findAll();
-
     }
 
     /**

@@ -1,20 +1,24 @@
 package spring_project.project.user.domain.service;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @DataJpaTest
@@ -27,11 +31,8 @@ class UserRepositoryTest {
     User user1;
     User user2;
 
-    Pageable pageble;
-
     @BeforeEach
     void setUp() {
-        pageble = PageRequest.of(0, 1);
         //User 정보
         UserBasicInfo userBasicInfo = UserBasicInfo.builder()
                 .address("incheon")
@@ -79,7 +80,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    @DisplayName("가입성공")
+    @DisplayName("회원가입")
     void save() {
         //given
         //when
@@ -98,10 +99,11 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         //when
-        User findOneByEmail = userRepository.findByUserEmail(user.getUserEmail()).get();
+        Optional<User> result = userRepository.findByUserEmail(user.getUserEmail());
 
         //then
-        assertThat(findOneByEmail).usingRecursiveComparison()
+        assertFalse(result.isEmpty());
+        assertThat(result.get()).usingRecursiveComparison()
                 .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
     }
@@ -113,31 +115,47 @@ class UserRepositoryTest {
         userRepository.save(user);
 
         //when
-        User findOneByPhoneNum = userRepository.findByUserBasicInfoPhoneNumber(user.getUserBasicInfo().getPhoneNumber()).get();
+        Optional<User> findOneByPhoneNum = userRepository.findByUserBasicInfoPhoneNumber(user.getUserBasicInfo().getPhoneNumber());
 
         //then
-        assertThat(findOneByPhoneNum).usingRecursiveComparison()
+        assertFalse(findOneByPhoneNum.isEmpty());
+        assertThat(findOneByPhoneNum.get()).usingRecursiveComparison()
                 .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
     }
 
     @Test
-    @DisplayName("회원목록조회")
+    @DisplayName("회원목록 조회")
     void PageFindAll() {
         //given
+        Pageable pageble;
+        pageble = PageRequest.of(0, 4);
+
         userRepository.save(user);
         userRepository.save(user1);
         userRepository.save(user2);
-        Pageable pageble =  PageRequest.of(0, 1);
 
         //when
-        userRepository.findAll(pageble);
+        Page<User> list = userRepository.findAll(pageble);
+        List<User> result = list.getContent();
 
-        //
+        System.out.println("result = "+result);
+        //then
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() <= pageble.getPageSize());
     }
 
     @Test
-    @DisplayName("삭제 후 회원목록 조회")
+    @DisplayName("회원목록 삭제")
     void deleteById() {
+        //given
+        userRepository.save(user);
+
+        //when
+        userRepository.deleteById(user.getUserEmail());
+        Optional<User> result = userRepository.findByUserEmail(user.getUserEmail());
+
+        //then
+        assertTrue(result.isEmpty());
     }
 }

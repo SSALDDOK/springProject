@@ -15,7 +15,6 @@ public interface UserRepository {
 
     Optional<User> findByUserBasicInfoPhoneNumber(String phoneNumber);
 
-    List<User> findAll();
 
     Page<User> findAll(Pageable pageable);
 

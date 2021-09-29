@@ -1,9 +1,6 @@
 package spring_project.project.user.domain.model.commands;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import java.time.LocalDateTime;
@@ -11,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 //dto 변환
@@ -27,7 +25,4 @@ public class UserCommand {
 
     private String birth; //생년월일
 
-    private LocalDateTime createAt;
-
-    private LocalDateTime updateAt;
 }
