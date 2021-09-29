@@ -3,7 +3,7 @@ package spring_project.project.user.controller.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring_project.project.user.controller.validation.ValidationStringField;
+import spring_project.project.user.controller.validation.ValidationBasicField;
 
 import static spring_project.project.common.enums.ValidateRegex.emailName;
 import static spring_project.project.common.enums.ValidateRegex.emailRegex;
@@ -12,7 +12,8 @@ import static spring_project.project.common.enums.ValidateRegex.emailRegex;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDeleteReqDTO {
-    @ValidationStringField(name=emailName,regex =emailRegex)
+
+    @ValidationBasicField(name = emailName, regex = emailRegex)
     private String userEmail; //아이디
 
 }

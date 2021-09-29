@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import spring_project.project.user.domain.model.aggregates.User;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -14,7 +13,6 @@ public interface UserRepository {
     Optional<User> findByUserEmail(String userEmail);
 
     Optional<User> findByUserBasicInfoPhoneNumber(String phoneNumber);
-
 
     Page<User> findAll(Pageable pageable);
 

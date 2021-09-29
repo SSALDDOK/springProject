@@ -32,12 +32,12 @@ class UserServiceJoinintegrationTest {
 
     UserCommand command = UserCommand.builder()
             .userEmail("lizzy@plgrim.com")
-                .userName("lizzy")
-                .password("jqijfe123")
-                .gender("F")
-                .userBasicInfo(userBasicInfo)
-                .birth("19970717")
-                .build();
+            .userName("lizzy")
+            .password("jqijfe123")
+            .gender("F")
+            .userBasicInfo(userBasicInfo)
+            .birth("19970717")
+            .build();
 
     @Test
     @DisplayName("회원가입성공")
@@ -74,7 +74,7 @@ class UserServiceJoinintegrationTest {
         userService.join(command);
 
         //then
-        assertThrows(CustomException.class,()->userService.join(testEmail));
+        assertThrows(CustomException.class, () -> userService.join(testEmail));
 
     }
 
@@ -89,6 +89,6 @@ class UserServiceJoinintegrationTest {
         userService.join(command);
 
         //then
-        assertThrows(CustomException.class,()->userService.join(testPhoneNumber));
+        assertThrows(CustomException.class, () -> userService.join(testPhoneNumber));
     }
 }

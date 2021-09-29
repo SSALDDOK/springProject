@@ -17,8 +17,8 @@ import static java.lang.annotation.ElementType.*;
 @Documented
 @Target({TYPE, METHOD, FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ValidationNumberField.NumberValidator.class)
-public @interface ValidationNumberField {
+@Constraint(validatedBy = ValidationBasicField.NumberValidator.class)
+public @interface ValidationBasicField {
 
     String message() default "join Validation(NumberField) error";
 
@@ -34,13 +34,13 @@ public @interface ValidationNumberField {
 
 
     @Slf4j
-    class NumberValidator implements ConstraintValidator<ValidationNumberField, String> {
+    class NumberValidator implements ConstraintValidator<ValidationBasicField, String> {
         private String name;
         private int length;
         private String regex;
 
         @Override
-        public void initialize(ValidationNumberField constraintAnnotation) {
+        public void initialize(ValidationBasicField constraintAnnotation) {
             ConstraintValidator.super.initialize(constraintAnnotation);
             name = constraintAnnotation.name();
             length = constraintAnnotation.length();
@@ -54,17 +54,20 @@ public @interface ValidationNumberField {
         }
 
         private boolean checkValidate(String value, ConstraintValidatorContext context) {
-            if (!(value.length() < length)) {
-                addMsgMethod(context, String.format("%s은 %d 이하로 입력해주세요.", name, length));
-                return false;
-            }
 
             if (!StringUtils.isNotBlank(value)) {
                 addMsgMethod(context, String.format("%s 값을 입력해 주세요.", name));
                 return false;
             }
 
-            return true;
+            if (length != 0 && !(value.length() < length)) {
+                addMsgMethod(context, String.format("%s은 %d 이하로 입력해주세요.", name, length));
+                return false;
+            }
+
+            addMsgMethod(context, String.format("%s 형식에 맞게 입력해 주세요.", name));
+            return value.matches(regex);
+
         }
 
         private void addMsgMethod(ConstraintValidatorContext context, String msg) {

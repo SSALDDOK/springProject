@@ -36,7 +36,7 @@ public class UserController {
     private final RequestMapper requestMapper;
 
     @Autowired
-    public UserController(UserService userService , RequestMapper requestMapper) {
+    public UserController(UserService userService, RequestMapper requestMapper) {
 
         this.userService = userService;
         this.requestMapper = requestMapper;
@@ -44,6 +44,7 @@ public class UserController {
 
     /**
      * 회원 가입
+     *
      * @Param UserJoinReqDTO
      */
     @PostMapping("/join")
@@ -59,24 +60,26 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-   /**
-    *회원 수정
-    * @Param UserModifyReqDTO
-    */
-@PutMapping("/modify")
-public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto) {
-    //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
-    UserCommand userCommand = requestMapper.toCommand(dto);
+    /**
+     * 회원 수정
+     *
+     * @Param UserModifyReqDTO
+     */
+    @PutMapping("/modify")
+    public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto) {
+        //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
+        UserCommand userCommand = requestMapper.toCommand(dto);
 
-    //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
-    User user = userService.modify(userCommand);
+        //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
+        User user = userService.modify(userCommand);
 
-    //3.Service 성공/실패 확인
-    return new ResponseEntity<>(user, HttpStatus.OK);
-}
+        //3.Service 성공/실패 확인
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     /**
-     *회원 탈퇴
+     * 회원 탈퇴
+     *
      * @Param UserDeleteReqDTO
      */
     @DeleteMapping("/delete")
@@ -93,7 +96,8 @@ public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto)
 
     /**
      * 회원 목록 조회
-     * @Param page,pageCount
+     *
+     * @Param page, pageCount
      */
     @GetMapping("/users/{page}/{pageCount}")
     public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {

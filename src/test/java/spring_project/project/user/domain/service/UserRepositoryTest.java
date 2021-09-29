@@ -139,7 +139,7 @@ class UserRepositoryTest {
         Page<User> list = userRepository.findAll(pageble);
         List<User> result = list.getContent();
 
-        System.out.println("result = "+result);
+        System.out.println("result = " + result);
         //then
         assertFalse(result.isEmpty());
         assertTrue(result.size() <= pageble.getPageSize());

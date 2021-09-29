@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
-import spring_project.project.user.controller.validation.ValidationNumberField;
-import spring_project.project.user.controller.validation.ValidationStringField;
+import spring_project.project.user.controller.validation.ValidationBasicField;
 
 import javax.validation.constraints.NotBlank;
 
@@ -18,25 +17,25 @@ import static spring_project.project.common.enums.ValidateRegex.*;
 @AllArgsConstructor
 public class UserModifyReqDTO {
 
-    @ValidationStringField(name=emailName,regex =emailRegex)
+    @ValidationBasicField(name = emailName, regex = emailRegex)
     private String userEmail; //아이디
 
-    @ValidationStringField(name =name, length = 5,regex =nameRegex)
+    @ValidationBasicField(name = name, length = 5, regex = nameRegex)
     private String userName; //이름
 
     @NotBlank
     private String address; //주소
 
-    @ValidationNumberField(name =passwordName, length = 20, regex =passwordRegex)
+    @ValidationBasicField(name = passwordName, length = 20, regex = passwordRegex)
     private String password; //비밀번호
 
-    @ValidationNumberField(name =phoneName, length = 15, regex =phoneRegex)
+    @ValidationBasicField(name = phoneName, length = 15, regex = phoneRegex)
     private String phoneNumber; //전화번호
 
-    @ValidationGenderField(genderMaleType =GENDER_MALE, genderFemaleType =GENDER_FEMALE)
+    @ValidationGenderField(genderMaleType = GENDER_MALE, genderFemaleType = GENDER_FEMALE)
     private String gender; //성별
 
-    @ValidationNumberField(name =birthName, length = 9, regex =birthRegex)
+    @ValidationBasicField(name = birthName, length = 9, regex = birthRegex)
     private String birth; //생년월일
 
 }
