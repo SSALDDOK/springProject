@@ -15,7 +15,7 @@ public class UserBasicInfo {
     @Column(name = "phone_number")
     private String phoneNumber; //전화번호
 
-    @Column(name ="address" )
+    @Column(name = "address")
     private String address; //주소
 
 

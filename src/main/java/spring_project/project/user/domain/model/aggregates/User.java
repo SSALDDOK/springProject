@@ -21,7 +21,7 @@ public class User extends BaseTime {
     @Column(name = "user_name")
     private String userName; //이름
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password; //비밀번호
 
     @Embedded
