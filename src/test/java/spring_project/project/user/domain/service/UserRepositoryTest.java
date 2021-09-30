@@ -32,7 +32,7 @@ class UserRepositoryTest {
     User user2;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         //User 정보
         UserBasicInfo userBasicInfo = UserBasicInfo.builder()
                 .address("incheon")

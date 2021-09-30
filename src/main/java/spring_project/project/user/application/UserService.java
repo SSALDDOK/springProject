@@ -94,9 +94,9 @@ public class UserService {
               .build();
 
       //DB에 해당 유저가 존재하는 지 확인
-      Optional<User> findOne = userRepository.findByUserEmail(command.getUserEmail());
+      Optional<User> findOne = userRepository.findByUserEmail(user.getUserEmail());
       //DB에 해당 전화번호가 존재하는 지 확인
-      Optional<User> findOnePhoneNum = userRepository.findByUserBasicInfoPhoneNumber(command.getUserBasicInfo().getPhoneNumber());
+      Optional<User> findOnePhoneNum = userRepository.findByUserBasicInfoPhoneNumber(user.getUserBasicInfo().getPhoneNumber());
 
       //수정할 회원이 없을 경우
       if (findOne.isEmpty()) {

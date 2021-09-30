@@ -14,10 +14,10 @@ import spring_project.project.user.domain.service.UserRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("회원가입서비스테스트")
+@DisplayName("회원서비스통합테스트")
 @Transactional
 @SpringBootTest
-class UserServiceJoinintegrationTest {
+class UserServiceIntegrationTest {
 
     @Autowired
     UserService userService;
@@ -25,17 +25,16 @@ class UserServiceJoinintegrationTest {
     @Autowired
     UserRepository userRepository;
 
-    UserBasicInfo userBasicInfo = UserBasicInfo.builder()
-            .address("incheon")
-            .phoneNumber("010-8710-1086")
-            .build();
 
     UserCommand command = UserCommand.builder()
             .userEmail("lizzy@plgrim.com")
             .userName("lizzy")
             .password("jqijfe123")
             .gender("F")
-            .userBasicInfo(userBasicInfo)
+            .userBasicInfo(UserBasicInfo.builder()
+                    .address("incheon")
+                    .phoneNumber("010-8710-1086")
+                    .build())
             .birth("19970717")
             .build();
 
@@ -43,17 +42,15 @@ class UserServiceJoinintegrationTest {
     @DisplayName("회원가입성공")
     void joinSuccess() {
         //given
-        UserBasicInfo testUserBasciInfo = UserBasicInfo.builder()
-                .address("incheon")
-                .phoneNumber("010-8710-1086")
-                .build();
-
         UserCommand testCommand = UserCommand.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("lizzy")
                 .password("jqijfe123")
                 .gender("F")
-                .userBasicInfo(testUserBasciInfo)
+                .userBasicInfo( UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
                 .birth("19970717")
                 .build();
 
@@ -66,7 +63,7 @@ class UserServiceJoinintegrationTest {
 
     @Test
     @DisplayName("회원가입실패_이메일 중복")
-    void joinFailByEmail() {
+    void joinFailByEmail() throws CustomException{
         //given
         UserCommand testEmail = UserCommand.builder().userEmail("lizzy@plgrim.com").build();
 
@@ -80,7 +77,7 @@ class UserServiceJoinintegrationTest {
 
     @Test
     @DisplayName("회원가입성공_전화번호 중복")
-    void joinFailByPhoneNumber() {
+    void joinFailByPhoneNumber() throws CustomException{
         //given
         UserBasicInfo phoneNumber = UserBasicInfo.builder().phoneNumber("010-8710-1086").build();
         UserCommand testPhoneNumber = UserCommand.builder().userBasicInfo(phoneNumber).build();
@@ -90,5 +87,48 @@ class UserServiceJoinintegrationTest {
 
         //then
         assertThrows(CustomException.class, () -> userService.join(testPhoneNumber));
+    }
+
+    @Test
+    @DisplayName("회원수정 성공")
+    void modifySuccess() {
+        //given
+        UserCommand testCommand = UserCommand.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("liy")
+                .password("dd1wdw213")
+                .gender("M")
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-871-1086")
+                        .build())
+                .birth("19970717")
+                .build();
+
+        String existPhoneNumber = command.getUserBasicInfo().getPhoneNumber();
+        System.out.println(existPhoneNumber);
+
+        //when
+        userService.join(command);
+        assertFalse(command.toString().isEmpty());
+        assertNotEquals(existPhoneNumber,
+                testCommand.getUserBasicInfo().getPhoneNumber());
+
+        User result = userService.modify(testCommand);
+
+        //then
+        assertThat(result.getUserName()).isEqualTo("liy");
+    }
+
+    @Test
+    @DisplayName("회원수정 실패_수정할 회원 없음")
+    void modifyFailByIsNotExistUsers() {
+
+    }
+
+    @Test
+    @DisplayName("회원수정 실패_기존 전화번호 존재")
+    void modifyFailByExistPhoneNumber() {
+
     }
 }
