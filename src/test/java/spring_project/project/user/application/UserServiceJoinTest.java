@@ -26,7 +26,7 @@ import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 public class UserServiceJoinTest {
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserService userService;
@@ -65,7 +65,9 @@ public class UserServiceJoinTest {
         User result = userService.join(command);
 
         //then
-        assertThat(result).usingRecursiveComparison().ignoringFields("createAt", "updateAt").isEqualTo(user);
+        assertThat(result).usingRecursiveComparison()
+                .ignoringFields("createAt", "updateAt")
+                .isEqualTo(user);
 
     }
 

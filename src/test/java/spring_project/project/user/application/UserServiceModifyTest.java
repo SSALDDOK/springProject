@@ -26,10 +26,10 @@ import static spring_project.project.common.enums.ErrorCode.EMPTY_USER;
 public class UserServiceModifyTest {
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
-    UserService userService;
+    private UserService userService;
 
     final UserCommand command = UserCommand.builder()
             .userEmail("lizzy@plgrim.com")
@@ -73,7 +73,7 @@ public class UserServiceModifyTest {
 
     @Test
     @DisplayName("회원수정_실패_회원없음")
-    void modifyFailByIsNotExistUsersUnitTest() throws CustomException {
+    void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
         final User user = User.builder()
                 .userEmail("lizzy@plgrim.com")
@@ -81,7 +81,6 @@ public class UserServiceModifyTest {
 
         given(userRepository.findByUserEmail("lizzy@plgrim.com")).willReturn(Optional.empty())
                 .willThrow(new CustomException(EMPTY_USER));
-
         //when
         //then
         assertThrows(CustomException.class,()->userService.modify(command));
@@ -90,13 +89,12 @@ public class UserServiceModifyTest {
 
     @Test
     @DisplayName("회원수정_실패_기존전화번호존재")
-    void modifyFailByExistPhoneNumberUnitTest() throws CustomException{
+    void modifyFailByExistedPhoneNumberUnitTest() throws CustomException{
         //given
         final User user = User.builder()
                 .userBasicInfo(UserBasicInfo.builder().phoneNumber("010-8710-1086").build())
                 .build();
 
-//        given(userRepository.findByUserEmail("lizzy@"))
         given(userRepository.findByUserBasicInfoPhoneNumber("lizzy@plgrim.com")).willReturn(Optional.of(user))
                 .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
 
