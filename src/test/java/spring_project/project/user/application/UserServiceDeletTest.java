@@ -45,7 +45,6 @@ public class UserServiceDeletTest {
 
         //when
         userService.delete(command);
-
         //then
         //해당 메소드가 times만큼 실행 됬는 지 검증
         verify(userRepository, times(1)).deleteById(user.getUserEmail());

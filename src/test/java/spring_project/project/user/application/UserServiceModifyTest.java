@@ -95,7 +95,7 @@ public class UserServiceModifyTest {
                 .userBasicInfo(UserBasicInfo.builder().phoneNumber("010-8710-1086").build())
                 .build();
 
-        given(userRepository.findByUserBasicInfoPhoneNumber("lizzy@plgrim.com")).willReturn(Optional.of(user))
+        given(userRepository.findByUserBasicInfoPhoneNumber("010-8710-1086")).willReturn(Optional.of(user))
                 .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
 
         //when

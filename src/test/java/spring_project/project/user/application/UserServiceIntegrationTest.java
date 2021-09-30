@@ -39,7 +39,7 @@ class UserServiceIntegrationTest {
             .build();
 
     @Test
-    @DisplayName("회원가입성공")
+    @DisplayName("회원가입_성공")
     void joinSuccess() {
         //given
         UserCommand testCommand = UserCommand.builder()

@@ -1,6 +1,5 @@
 package spring_project.project.user.domain.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
@@ -128,21 +126,20 @@ class UserRepositoryTest {
     @DisplayName("회원목록 조회")
     void PageFindAll() {
         //given
-        Pageable pageble;
-        pageble = PageRequest.of(0, 4);
+        Pageable pageable;
+        pageable = PageRequest.of(0, 4);
 
         userRepository.save(user);
         userRepository.save(user1);
         userRepository.save(user2);
 
         //when
-        Page<User> list = userRepository.findAll(pageble);
+        Page<User> list = userRepository.findAll(pageable);
         List<User> result = list.getContent();
 
         System.out.println("result = " + result);
         //then
-        assertFalse(result.isEmpty());
-        assertTrue(result.size() <= pageble.getPageSize());
+        assertTrue(result.size() <= pageable.getPageSize());
     }
 
     @Test

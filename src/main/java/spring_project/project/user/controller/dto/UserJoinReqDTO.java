@@ -2,6 +2,7 @@ package spring_project.project.user.controller.dto;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
@@ -17,6 +18,7 @@ import static spring_project.project.common.enums.ValidateRegex.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserJoinReqDTO {
 
     /**

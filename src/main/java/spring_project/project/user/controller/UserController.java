@@ -48,7 +48,7 @@ public class UserController {
      * @Param UserJoinReqDTO
      */
     @PostMapping("/join")
-    public ResponseEntity<User> joinReq(@RequestBody @Validated UserJoinReqDTO dto) {
+    public ResponseEntity<User> join(@RequestBody @Validated UserJoinReqDTO dto) {
 
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
         UserCommand userCommand = requestMapper.toCommand(dto);
