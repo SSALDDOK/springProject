@@ -12,9 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
-import spring_project.project.user.domain.service.UserRepository;
+import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import static org.mockito.BDDMockito.given;
 public class UserServiceListTest {
 
     @Mock
-    UserRepository userRepository;
+    UserJpaRepository userRepository;
 
     @InjectMocks
     UserService userService;

@@ -11,6 +11,7 @@ import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.service.UserRepository;
+import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;
 
@@ -24,7 +25,7 @@ import static spring_project.project.common.enums.ErrorCode.EMPTY_DELETE_USER;
 public class UserServiceDeletTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userRepository;
 
     @InjectMocks
     private UserService userService;
@@ -45,6 +46,7 @@ public class UserServiceDeletTest {
 
         //when
         userService.delete(command);
+
         //then
         //해당 메소드가 times만큼 실행 됬는 지 검증
         verify(userRepository, times(1)).deleteById(user.getUserEmail());

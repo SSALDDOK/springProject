@@ -12,7 +12,7 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor
 public class UserBasicInfo {
 
-    @Column(name = "phone_number")
+    @Column(name = "phonenumber")
     private String phoneNumber; //전화번호
 
     @Column(name = "address")

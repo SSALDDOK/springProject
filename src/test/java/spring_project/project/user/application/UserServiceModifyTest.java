@@ -11,6 +11,7 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.domain.service.UserRepository;
+import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;
 
@@ -26,7 +27,7 @@ import static spring_project.project.common.enums.ErrorCode.EMPTY_USER;
 public class UserServiceModifyTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userRepository;
 
     @InjectMocks
     private UserService userService;

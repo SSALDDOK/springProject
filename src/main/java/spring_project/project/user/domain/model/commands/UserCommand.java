@@ -3,7 +3,6 @@ package spring_project.project.user.domain.model.commands;
 import lombok.*;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -13,6 +12,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 //dto 변환
 public class UserCommand {
+
+    private Long id;
+
     private String userEmail; //아이디
 
     private String userName; //이름

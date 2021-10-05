@@ -10,7 +10,7 @@ import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
-import spring_project.project.user.domain.service.UserRepository;
+import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;
 
@@ -26,7 +26,7 @@ import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 public class UserServiceJoinTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserJpaRepository userRepository;
 
     @InjectMocks
     private UserService userService;
@@ -78,10 +78,10 @@ public class UserServiceJoinTest {
         final User user = User.builder()
                 .userEmail("lizzy@plgrim.com")
                 .build();
-
+//when
         given(userRepository.findByUserEmail("lizzy@plgrim.com")).willReturn(Optional.of(user))
                 .willThrow(new CustomException(DUPLICATE_EMAIL));
-        //when
+
         //then
         assertThrows(CustomException.class, () -> userService.join(command));
     }

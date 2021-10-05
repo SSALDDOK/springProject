@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
+import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserRepositoryTest {
 
     @Autowired
-    UserRepository userRepository;
+    UserJpaRepository userRepository;
 
     User user;
     User user1;

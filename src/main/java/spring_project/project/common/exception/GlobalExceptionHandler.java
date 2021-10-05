@@ -41,6 +41,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return e.getMessage();
     }
 
+    //규격맞추기
     @ExceptionHandler(value = {CustomException.class})
     protected ResponseEntity<Object> handleCustomException(CustomException e) {
         log.error("handleCustomException throw CustomException : {}", e.getErrorCode());

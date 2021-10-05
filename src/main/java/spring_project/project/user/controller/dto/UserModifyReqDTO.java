@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationBasicField;
 
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
@@ -16,6 +17,18 @@ import static spring_project.project.common.enums.ValidateRegex.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserModifyReqDTO {
+
+    /**
+     * 아이디(이메일)
+     * 이름
+     * 패스워드
+     * 주소
+     * 전화번호
+     * 성별
+     * 생년월일
+     */
+
+    private Long id;
 
     @ValidationBasicField(name = emailName, regex = emailRegex)
     private String userEmail; //아이디

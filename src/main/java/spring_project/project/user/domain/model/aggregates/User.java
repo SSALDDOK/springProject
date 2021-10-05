@@ -14,11 +14,15 @@ import javax.persistence.*;
 @AllArgsConstructor
 public class User extends BaseTime {
 
+    //id는 회원 번호로 변경
     @Id
-    @Column(name = "user_email")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    Long id;
+
+    @Column(name = "useremail")
     private String userEmail; //아이디
 
-    @Column(name = "user_name")
+    @Column(name = "username")
     private String userName; //이름
 
     @Column(name = "password")

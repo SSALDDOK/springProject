@@ -38,6 +38,7 @@ public class RequestMapper {
         UserBasicInfo userBasicInfo = new UserBasicInfo(dto.getPhoneNumber(),dto.getAddress());
 
         return UserCommand.builder()
+                .id(dto.getId())
                 .userEmail(dto.getUserEmail())
                 .userEmail(dto.getUserEmail())
                 .userName(dto.getUserName())

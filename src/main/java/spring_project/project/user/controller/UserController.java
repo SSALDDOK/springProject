@@ -99,6 +99,7 @@ public class UserController {
      *
      * @Param page, pageCount
      */
+    /**수정 queryparam으로 변경*/
     @GetMapping("/users/{page}/{pageCount}")
     public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {
 

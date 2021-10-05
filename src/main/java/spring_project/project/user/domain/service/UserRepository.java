@@ -1,21 +1,7 @@
 package spring_project.project.user.domain.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import spring_project.project.user.domain.model.aggregates.User;
 
-import java.util.Optional;
-
+//Querydsl? 로 복잡한 걸 짤 때 사용
 public interface UserRepository {
-
-    User save(User user);
-
-    Optional<User> findByUserEmail(String userEmail);
-
-    Optional<User> findByUserBasicInfoPhoneNumber(String phoneNumber);
-
-    Page<User> findAll(Pageable pageable);
-
-    void deleteById(String userEmail);
 
 }
