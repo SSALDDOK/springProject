@@ -25,13 +25,6 @@ public class RequestMapper {
                 .build();
 
     }
-    public UserCommand toCommand(UserDeleteReqDTO dto){
-
-        return UserCommand.builder()
-                .userEmail(dto.getUserEmail())
-                .build();
-
-    }
 
     public UserCommand toCommand(UserModifyReqDTO dto){
 

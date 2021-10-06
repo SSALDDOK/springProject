@@ -76,12 +76,15 @@ public class UserController {
         //3.Service 성공/실패 확인
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+/*
 
-    /**
+    */
+/**
      * 회원 탈퇴
      *
      * @Param UserDeleteReqDTO
-     */
+     *//*
+
     @DeleteMapping("/delete")
     public ResponseEntity<Object> delete(@RequestBody @Validated UserDeleteReqDTO dto) {
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
@@ -93,6 +96,7 @@ public class UserController {
         //3.Service 성공/실패 확인
         return new ResponseEntity<>(HttpStatus.OK);
     }
+*/
 
     /**
      * 회원 목록 조회

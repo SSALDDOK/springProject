@@ -1,6 +1,7 @@
 package spring_project.project.user.application;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static spring_project.project.common.enums.ErrorCode.EMPTY_DELETE_USER;
 
+@Disabled
 @ExtendWith(MockitoExtension.class)
 @DisplayName("회원삭제_단위테스트")
 public class UserServiceDeletTest {
@@ -37,6 +39,7 @@ public class UserServiceDeletTest {
     final User user = User.builder()
             .userEmail("lizzy@plgrim.com")
             .build();
+/*
 
     @Test
     @DisplayName("회원탈퇴_성공")
@@ -63,5 +66,6 @@ public class UserServiceDeletTest {
         //then
         assertThrows(CustomException.class,()-> userService.delete(command));
     }
+*/
 
 }

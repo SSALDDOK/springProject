@@ -9,6 +9,8 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static java.util.Optional.of;
@@ -53,7 +55,7 @@ public class UserService {
 
 
         //기존 유저 이메일, 전화번호 있는지 확인하는 메서드
-        validateDuplicateUser(user);
+        validateDuplicatedJoinUser(user);
 
         //중복체크 후 repository에 저장
         return userRepository.save(user);
@@ -62,36 +64,31 @@ public class UserService {
     /**
      * 중복체크
      */
-    private void validateDuplicateUser(User user) throws CustomException {
+    private void validateDuplicatedJoinUser(User user) throws CustomException {
 
         //기존 DB에 해당 이메일,전화번호가 있는지 중복체크
-        Optional<User> validateUser = userRepository.findByUserEmailAndUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
+        Optional<User> validateUser = userRepository.findByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
 
-        if(validateUser.isPresent()) {
+        log.info("validateUser ={}", validateUser);
 
-            Optional<String> validateUserEmail = of(validateUser.get().getUserEmail());
-//            Optional<String> validateUserPhoneNum = of(validateUser.get().getUserEmail());
+        if (validateUser.isPresent()) {
 
-            validateUserEmail.ifPresentOrElse(m -> {
+            if (validateUser.get().getUserEmail().equals(user.getUserEmail())) {
                 throw new CustomException(DUPLICATE_EMAIL);
             }
-            throw new CustomException(DUPLICATE_PHONE_NUM);
 
-//                throw new CustomException(DUPLICATE_PHONE_NUM);
-
+            if (validateUser.get().getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
+                throw new CustomException(DUPLICATE_PHONE_NUM);
+            }
         }
-
-
-
     }
-
 
     /**
      * 회원 수정
      *
      * @Param UserUpdateDto
      */
-    public User modify(UserCommand command) {
+    public User modify(UserCommand command) throws CustomException {
 
 
         User user = User.builder()
@@ -104,17 +101,20 @@ public class UserService {
                 .userBasicInfo(command.getUserBasicInfo())
                 .build();
 
-        //유효성 검사 통과 시
-      /*  User validateUser = User.builder()
-                .id(command.getId())
-                .userBasicInfo(command.getUserBasicInfo())
-                .build();*/
 
-        log.info("user = {}" ,user);
+        log.info("user = {}", user);
 
+        //유효성 검사
+        validateDuplicatedModifyUser(user);
+
+        //유효성 검사 통과 시 저장
+        userRepository.save(user);
+
+        return user;
+    }
+
+    private void validateDuplicatedModifyUser(User user) {
         //DB에 해당 유저가 존재하는 지 확인
-//        Optional<User> findOne = userRepository.findByUserEmail(user.getUserEmail());
-
         Optional<User> findOne = userRepository.findById(user.getId());
 
         //수정할 회원이 없을 경우
@@ -122,48 +122,51 @@ public class UserService {
             throw new CustomException(EMPTY_USER);
         }
 
-        //DB에 해당 전화번호가 존재하는 지 확인
-        Optional<User> findOnePhoneNum = userRepository.findByUserBasicInfoPhoneNumber(user.getUserBasicInfo().getPhoneNumber());
+        //조회한 값들 List 로 받아오기
+        List<User> duplicateCheckInfo = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
+        log.info("findOneInfo = {}", duplicateCheckInfo);
 
-        log.info("findOnePhoneNum ={}",findOnePhoneNum);
-        //수정할 회원의 번호가 이미 존재하는 번호라면?
-        if (findOnePhoneNum.isPresent()) {
-//            of(findOne.get().getUserBasicInfo().getPhoneNumber();
-            if (findOne.get().equals(findOnePhoneNum.get())){
-                 userRepository.save(user);
+        //받아온 list값만큼 반복실행
+        for (User u : duplicateCheckInfo) {
+            if (!u.getId().equals(user.getId())) {
+                    //수정할 회원의 이메일이 DB에 존재하는 지 확인
+                if (u.getUserEmail().equals(user.getUserEmail())) {
+
+                    throw new CustomException(DUPLICATE_EMAIL);
+                    //수정할 회원의 번호가 DB에 존재하는 지 번호 확인
+                } else if (u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
+
+                    throw new CustomException(DUPLICATE_PHONE_NUM);
+                }
             }
-
-            throw new CustomException(DUPLICATE_PHONE_NUM);
         }
-
-         return user;
     }
 
-
-    /**
-     * 회원 탈퇴
-     *
-     * @Param UserDeleteDto
-     */
+/**
+ * 회원 탈퇴
+ *
+ * @Param UserDeleteDto
+ *//*
 
     public void delete(UserCommand command) {
 
         User user = User.builder()
-                .userEmail(command.getUserEmail())
+                .getId(command.getId())
                 .build();
 
         //삭제할 회원 조회
-        Optional<User> findOne = userRepository.findByUserEmail(user.getUserEmail());
+        Optional<User> findOne = userRepository.findByUserEmail(user.getId());
 
         //삭제할 회원이 없을때
         if (findOne.isEmpty()) {
             throw new CustomException(EMPTY_DELETE_USER);
         }
+*/
 
 
-        //삭제로직
+    //삭제로직
 //        userRepository.deleteById(user.getUserEmail());
-    }
+//    }
 
     /**
      * 회원 목록 조회
