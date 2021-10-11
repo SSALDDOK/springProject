@@ -16,7 +16,7 @@ public class User extends BaseTime {
 
     //id는 회원 번호로 변경
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "useremail")

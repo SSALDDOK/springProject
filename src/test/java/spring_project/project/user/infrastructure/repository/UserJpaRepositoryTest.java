@@ -5,15 +5,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
+
+import javax.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@DataJpaTest
+//@DataJpaTest
+@SpringBootTest
+@Transactional
 class UserJpaRepositoryTest {
-
 
     @Autowired
     UserJpaRepository userRepository;
@@ -25,10 +31,6 @@ class UserJpaRepositoryTest {
     @BeforeEach
     public void setUp() {
         //User 정보
-        UserBasicInfo userBasicInfo = UserBasicInfo.builder()
-                .address("incheon")
-                .phoneNumber("010-8710-1086")
-                .build();
 
         user = User.builder()
                 .id(1L)
@@ -36,15 +38,14 @@ class UserJpaRepositoryTest {
                 .userName("lizzy")
                 .password("jqijfe123")
                 .gender("F")
-                .userBasicInfo(userBasicInfo)
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
                 .birth("19970717")
                 .build();
 
         //User1 정보
-        UserBasicInfo userBasicInfo1 = UserBasicInfo.builder()
-                .address("bucheon")
-                .phoneNumber("010-870-1086")
-                .build();
 
         user1 = User.builder()
                 .id(2L)
@@ -52,23 +53,24 @@ class UserJpaRepositoryTest {
                 .userName("lizy")
                 .password("jqife123")
                 .gender("F")
-                .userBasicInfo(userBasicInfo1)
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("bucheon")
+                        .phoneNumber("010-870-1086")
+                        .build())
                 .birth("19970717")
                 .build();
 
         //User2 정보
-        UserBasicInfo userBasicInfo2 = UserBasicInfo.builder()
-                .address("LA")
-                .phoneNumber("010-8710-1036")
-                .build();
-
         user2 = User.builder()
                 .id(3L)
                 .userEmail("ezz2zze@plgrim.com")
                 .userName("izzy")
                 .password("qijfe123")
                 .gender("F")
-                .userBasicInfo(userBasicInfo2)
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("LA")
+                        .phoneNumber("010-8710-1036")
+                        .build())
                 .birth("19970717")
                 .build();
     }
@@ -85,29 +87,45 @@ class UserJpaRepositoryTest {
                 .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
     }
-/*
-    @Disabled
+
     @Test
-    @DisplayName("회원 조회")
-    void findById() {
+    @DisplayName("회원 이메일, 전화번호 조회")
+    void findByUserEmailAndUserPhoneNumber() {
         //given
         userRepository.save(user);
 
         //when
-//        Optional<User> result = userRepository.findById(user.getUserEmail());
+        List<User> result = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
+        System.out.println("result= " + result);
+        System.out.println("user= " + user);
 
         //then
-//        assertFalse(result.isEmpty());
+        //이게 맞는건가..?
+        assertThat(result.equals(user));
 //        assertThat(result.get()).usingRecursiveComparison()
 //                .ignoringFields("createAt", "updateAt")
 //                .isEqualTo(user);
     }
 
-
-
-
-    @Disabled
     @Test
+    @DisplayName("회원정보 조회")
+    void findById() {
+        //given
+        userRepository.save(user);
+
+        //when
+        Optional<User> findOne = userRepository.findById(user.getId());
+
+        //then
+        assertFalse(findOne.isEmpty());
+        assertThat(findOne.get()).usingRecursiveComparison()
+//                .ignoringFields("createAt", "updateAt")
+                .isEqualTo(user);
+    }
+
+
+
+ /*   @Test
     @DisplayName("회원 전화번호 조회")
     void findByUserBasicInfoPhoneNumber() {
         //given
@@ -121,9 +139,9 @@ class UserJpaRepositoryTest {
         assertThat(findOneByPhoneNum.get()).usingRecursiveComparison()
                 .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
-    }
+    }*/
 
-    @Test
+   /* @Test
     @DisplayName("회원목록 조회")
     void PageFindAll() {
         //given
@@ -141,9 +159,9 @@ class UserJpaRepositoryTest {
         System.out.println("result = " + result);
         //then
         assertTrue(result.size() <= pageable.getPageSize());
-    }
+    }*/
 
-    @Test
+   /* @Test
     @DisplayName("회원목록 삭제")
     void deleteById() {
         //given

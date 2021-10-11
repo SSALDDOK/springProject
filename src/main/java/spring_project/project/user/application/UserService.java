@@ -67,20 +67,19 @@ public class UserService {
     private void validateDuplicatedJoinUser(User user) throws CustomException {
 
         //기존 DB에 해당 이메일,전화번호가 있는지 중복체크
-        Optional<User> validateUser = userRepository.findByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
+        List<User> validateUser = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
 
         log.info("validateUser ={}", validateUser);
 
-        if (validateUser.isPresent()) {
-
-            if (validateUser.get().getUserEmail().equals(user.getUserEmail())) {
+        for( User u : validateUser){
+            if(u.getUserEmail().equals(user.getUserEmail())){
                 throw new CustomException(DUPLICATE_EMAIL);
             }
-
-            if (validateUser.get().getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
+            else if(u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())){
                 throw new CustomException(DUPLICATE_PHONE_NUM);
             }
         }
+
     }
 
     /**
