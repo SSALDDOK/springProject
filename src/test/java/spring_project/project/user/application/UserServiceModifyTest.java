@@ -1,5 +1,6 @@
 package spring_project.project.user.application;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,8 @@ import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.domain.service.UserRepository;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,7 +35,9 @@ public class UserServiceModifyTest {
     @InjectMocks
     private UserService userService;
 
-    final UserCommand command = UserCommand.builder()
+
+    UserCommand command = UserCommand.builder()
+            .id(1L)
             .userEmail("lizzy@plgrim.com")
             .userName("lizzy")
             .password("jqijfe123")
@@ -48,8 +53,9 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_성공")
     void modifySuccessUnitTest() {
         //given
-        final User user = User.builder()
-                .userEmail("lizzy@plgrim.com")
+        final User testUser = User.builder()
+                .id(1L)
+                .userEmail("lizy@plgrim.com")
                 .userName("liy")
                 .password("dd1wdw213")
                 .gender("M")
@@ -60,15 +66,15 @@ public class UserServiceModifyTest {
                 .birth("19970717")
                 .build();
 
-        given(userRepository.save(any())).willReturn(user);
-        given(userRepository.findByUserEmail("lizzy@plgrim.com")).willReturn(Optional.of(user));
-        given(userRepository.findByUserBasicInfoPhoneNumber("010-8710-1086")).willReturn(Optional.empty());
+
+        given(userRepository.save(any())).willReturn(testUser);
+        given(userRepository.findById(command.getId())).willReturn(Optional.of(testUser));
 
         //when
         User result = userService.modify(command);
 
         //then
-        assertThat(result.getUserName()).isEqualTo("lizzy");
+        assertThat(result.getId()).isEqualTo(testUser.getId());
 
     }
 
@@ -76,21 +82,18 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_실패_회원없음")
     void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        final User user = User.builder()
-                .userEmail("lizzy@plgrim.com")
-                .build();
-
-        given(userRepository.findByUserEmail("lizzy@plgrim.com")).willReturn(Optional.empty())
+        given(userRepository.findById(command.getId())).willReturn(Optional.empty())
                 .willThrow(new CustomException(EMPTY_USER));
+
         //when
         //then
-        assertThrows(CustomException.class,()->userService.modify(command));
+        assertThrows(CustomException.class, () -> userService.modify(command));
 
     }
-
+/*
     @Test
-    @DisplayName("회원수정_실패_기존전화번호존재")
-    void modifyFailByExistedPhoneNumberUnitTest() throws CustomException{
+    @DisplayName("회원수정_실패_중복(이메일or전화번호)")
+    void modifyFailByExistedPhoneNumberUnitTest() throws CustomException {
         //given
         final User user = User.builder()
                 .userBasicInfo(UserBasicInfo.builder().phoneNumber("010-8710-1086").build())
@@ -101,6 +104,7 @@ public class UserServiceModifyTest {
 
         //when
         //then
-        assertThrows(CustomException.class,()->userService.modify(command));
+        assertThrows(CustomException.class, () -> userService.modify(command));
     }
+    */
 }

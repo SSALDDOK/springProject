@@ -124,23 +124,6 @@ class UserJpaRepositoryTest {
     }
 
 
-
- /*   @Test
-    @DisplayName("회원 전화번호 조회")
-    void findByUserBasicInfoPhoneNumber() {
-        //given
-        userRepository.save(user);
-
-        //when
-        Optional<User> findOneByPhoneNum = userRepository.findByUserBasicInfoPhoneNumber(user.getUserBasicInfo().getPhoneNumber());
-
-        //then
-        assertFalse(findOneByPhoneNum.isEmpty());
-        assertThat(findOneByPhoneNum.get()).usingRecursiveComparison()
-                .ignoringFields("createAt", "updateAt")
-                .isEqualTo(user);
-    }*/
-
    /* @Test
     @DisplayName("회원목록 조회")
     void PageFindAll() {

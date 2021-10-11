@@ -166,15 +166,16 @@ public class UserService {
     //삭제로직
 //        userRepository.deleteById(user.getUserEmail());
 //    }
-
-    /**
+/*
+    *//**
      * 회원 목록 조회
      *
      * @Param page, pageCount
-     */
+     *//*
     public Page<User> list(int page, int pageCount) {
 
         //페이징 처리에 받게 반환
         return userRepository.findAll(PageRequest.of(page, pageCount));
     }
+    */
 }

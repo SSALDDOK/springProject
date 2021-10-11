@@ -54,7 +54,7 @@ public class UserServiceListTest {
             .birth("19970717")
             .build();
 
-
+/*
     @Test
     @DisplayName("회원목록조회_성공")
     void listSuccessUnitTest() {
@@ -71,4 +71,5 @@ public class UserServiceListTest {
         //then
         assertTrue(pageList.getContent().size() <= pageable.getPageSize());
     }
+    */
 }

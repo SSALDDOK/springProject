@@ -97,13 +97,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 */
-
-    /**
+/*
+    *//**
      * 회원 목록 조회
      *
      * @Param page, pageCount
-     */
-    /**수정 queryparam으로 변경*/
+     *//*
+    *//**수정 queryparam으로 변경*//*
     @GetMapping("/users/{page}/{pageCount}")
     public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {
 
@@ -117,4 +117,5 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
 
     }
+    */
 }

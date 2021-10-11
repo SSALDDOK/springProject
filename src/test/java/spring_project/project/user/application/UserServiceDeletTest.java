@@ -1,3 +1,4 @@
+/*
 package spring_project.project.user.application;
 
 
@@ -39,6 +40,7 @@ public class UserServiceDeletTest {
     final User user = User.builder()
             .userEmail("lizzy@plgrim.com")
             .build();
+*/
 /*
 
     @Test
@@ -66,6 +68,8 @@ public class UserServiceDeletTest {
         //then
         assertThrows(CustomException.class,()-> userService.delete(command));
     }
-*/
+*//*
+
 
 }
+*/

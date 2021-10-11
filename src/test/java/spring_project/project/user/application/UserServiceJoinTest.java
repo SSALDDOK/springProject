@@ -1,8 +1,13 @@
 package spring_project.project.user.application;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,10 +17,13 @@ import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.Optional;
+import javax.swing.text.html.Option;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
@@ -66,39 +74,44 @@ public class UserServiceJoinTest {
 
         //then
         assertThat(result).usingRecursiveComparison()
-                .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
 
     }
 
-    @Test
-    @DisplayName("회원가입_실패_이메일 중복")
-    void joinFailByEmailUnitTest() throws CustomException {
+    @ParameterizedTest
+    @MethodSource("emailAndPhoneNum")
+    @DisplayName("회원가입_실패_이메일 or 전화번호 중복")
+    void joinFailByEmailOrPhoneNumberUnitTest(String email, String phoneNum) throws CustomException {
         //given
         final User user = User.builder()
-                .userEmail("lizzy@plgrim.com")
+                .userEmail(email)
+                .userBasicInfo(UserBasicInfo.builder().phoneNumber(phoneNum).build())
                 .build();
-//when
-        given(userRepository.findByUserEmail("lizzy@plgrim.com")).willReturn(Optional.of(user))
+
+        List<User> validateUser = new ArrayList<>();
+        validateUser.add(user);
+
+
+        //when - 이메일이 중복됬을 때
+        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
+                .willReturn(validateUser)
                 .willThrow(new CustomException(DUPLICATE_EMAIL));
 
-        //then
-        assertThrows(CustomException.class, () -> userService.join(command));
-    }
-
-    @Test
-    @DisplayName("회원가입_성공_전화번호 중복")
-    void joinFailByPhoneNumberUnitTest() throws CustomException {
-        //given
-        final User user = User.builder()
-                .userBasicInfo(UserBasicInfo.builder().phoneNumber("010-8710-1086").build())
-                .build();
-
-        given(userRepository.findByUserBasicInfoPhoneNumber("010-8710-1086")).willReturn(Optional.of(user))
+        //when - 전화 번호가 중복됬을 때
+        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
+                .willReturn(validateUser)
                 .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
-        //when
+
         //then
         assertThrows(CustomException.class, () -> userService.join(command));
     }
 
+    static Stream<Arguments> emailAndPhoneNum() {
+        return Stream.of(
+                arguments("lizzy@plgrim.com", "010-870-1086"),
+                arguments("lizy@plgrim.com", "010-8710-1086")
+        );
+    }
 }
+
+
