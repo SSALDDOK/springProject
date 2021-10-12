@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,10 +82,11 @@ class UserJoinControllerTest {
                 .birth("19970717")
                 .build();
 
+        //dto -> json
         String mapper = objectMapper.writeValueAsString(dto);
 
         //response로 받은 값과 비교할 user 객체
-        String userOne = objectMapper.writeValueAsString(user);
+//        String userOne = objectMapper.writeValueAsString(user);
 
         //when
         MvcResult result = mvc.perform(post("/user/join")
@@ -93,16 +97,26 @@ class UserJoinControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-//        String actual = result.getResponse().;
-//        objectMapper.writeValueAsString(actual);
+        //컨트롤러 거친 후 body받기
+        String resultContent = result.getResponse().getContentAsString();
+
+        //비교할 수 있도록 body json => User객체로 바꾸기
+        User actual = objectMapper.readValue(resultContent,User.class);
+
         //then
-//        assertThat(actual).usingDefaultComparator();
+        assertThat(actual).usingRecursiveComparison().ignoringFields("id","createAt","updateAt").isEqualTo(user);
     }
+
+   /* @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"lizzyplgrim"})
+    @DisplayName("")*/
+
 
 
     @Test
     @DisplayName("회원가입_컨트롤러_실패_이메일중복")
-    void joinControllerFailByEamilDuplicationUnitTest() throws Exception {
+    void joinControllerFailByEmailDuplicationUnitTest() throws Exception {
         //given
         final UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
@@ -114,7 +128,9 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
+        //dto -> json
         String mapper = objectMapper.writeValueAsString(dto);
+
         String testMapper = objectMapper.writeValueAsString(failDto);
 
         //when

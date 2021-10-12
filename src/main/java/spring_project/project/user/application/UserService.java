@@ -59,6 +59,7 @@ public class UserService {
 
         //중복체크 후 repository에 저장
         return userRepository.save(user);
+
     }
 
     /**
@@ -71,15 +72,13 @@ public class UserService {
 
         log.info("validateUser ={}", validateUser);
 
-        for( User u : validateUser){
-            if(u.getUserEmail().equals(user.getUserEmail())){
+        for (User u : validateUser) {
+            if (u.getUserEmail().equals(user.getUserEmail())) {
                 throw new CustomException(DUPLICATE_EMAIL);
-            }
-            else if(u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())){
+            } else if (u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
                 throw new CustomException(DUPLICATE_PHONE_NUM);
             }
         }
-
     }
 
     /**
@@ -107,9 +106,7 @@ public class UserService {
         validateDuplicatedModifyUser(user);
 
         //유효성 검사 통과 시 저장
-        userRepository.save(user);
-
-        return user;
+        return userRepository.save(user);
     }
 
     private void validateDuplicatedModifyUser(User user) {
@@ -128,7 +125,7 @@ public class UserService {
         //받아온 list값만큼 반복실행
         for (User u : duplicateCheckInfo) {
             if (!u.getId().equals(user.getId())) {
-                    //수정할 회원의 이메일이 DB에 존재하는 지 확인
+                //수정할 회원의 이메일이 DB에 존재하는 지 확인
                 if (u.getUserEmail().equals(user.getUserEmail())) {
 
                     throw new CustomException(DUPLICATE_EMAIL);
@@ -139,6 +136,20 @@ public class UserService {
                 }
             }
         }
+
+        /*duplicateCheckInfo.forEach(m -> {
+            if (!user.getId().equals(m.getId())) {
+                if (m.getUserEmail().equals(user.getUserEmail())) {
+
+                    throw new CustomException(DUPLICATE_EMAIL);
+                    //수정할 회원의 번호가 DB에 존재하는 지 번호 확인
+                } else if (m.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
+
+                    throw new CustomException(DUPLICATE_PHONE_NUM);
+                }
+            }
+        });*/
+
     }
 
 /**
@@ -166,8 +177,8 @@ public class UserService {
     //삭제로직
 //        userRepository.deleteById(user.getUserEmail());
 //    }
-/*
-    *//**
+    /*
+     *//**
      * 회원 목록 조회
      *
      * @Param page, pageCount

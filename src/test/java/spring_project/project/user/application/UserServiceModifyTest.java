@@ -1,29 +1,35 @@
 package spring_project.project.user.application;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
-import spring_project.project.user.domain.service.UserRepository;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
-import static spring_project.project.common.enums.ErrorCode.EMPTY_USER;
+import static org.mockito.Mockito.doReturn;
+import static spring_project.project.common.enums.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("회원수정_서비스테스트")
@@ -35,76 +41,112 @@ public class UserServiceModifyTest {
     @InjectMocks
     private UserService userService;
 
+    static String modifiedEmail = "lizzy@plgrim.com";
 
-    UserCommand command = UserCommand.builder()
-            .id(1L)
-            .userEmail("lizzy@plgrim.com")
-            .userName("lizzy")
-            .password("jqijfe123")
-            .gender("F")
-            .userBasicInfo(UserBasicInfo.builder()
-                    .address("incheon")
-                    .phoneNumber("010-8710-1086")
-                    .build())
-            .birth("19970717")
-            .build();
+    static UserCommand command;
+
+    static User commandToUser ;
+
+    @BeforeAll
+    static void setUp() {
+        command = UserCommand.builder()
+                .id(1L)
+                .userEmail(modifiedEmail)
+                .userName("lizzy")
+                .password("jqijfe123")
+                .gender("F")
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
+                .birth("19970717")
+                .build();
+
+        commandToUser = User.builder()
+                .id(command.getId())
+                .userEmail(command.getUserEmail())
+                .userBasicInfo(UserBasicInfo.builder()
+                        .phoneNumber(command.getUserBasicInfo().getPhoneNumber())
+                        .build())
+                .build();
+    }
+
+
 
     @Test
     @DisplayName("회원수정_성공")
     void modifySuccessUnitTest() {
         //given
-        final User testUser = User.builder()
+        User expected = User.builder()
                 .id(1L)
-                .userEmail("lizy@plgrim.com")
-                .userName("liy")
-                .password("dd1wdw213")
-                .gender("M")
-                .userBasicInfo(UserBasicInfo.builder()
-                        .address("incheon")
-                        .phoneNumber("010-871-1086")
-                        .build())
-                .birth("19970717")
+                .userEmail(modifiedEmail)
                 .build();
 
+        given(userRepository.findById(expected.getId())).willReturn(Optional.of(expected));
 
-        given(userRepository.save(any())).willReturn(testUser);
-        given(userRepository.findById(command.getId())).willReturn(Optional.of(testUser));
+        doReturn(new ArrayList<>())
+                .when(userRepository)
+                .findOneByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
+
+        given(userRepository.save(any())).willReturn(expected);
 
         //when
         User result = userService.modify(command);
 
         //then
-        assertThat(result.getId()).isEqualTo(testUser.getId());
-
+        assertThat(result.getUserEmail()).isEqualTo(modifiedEmail);
     }
 
     @Test
     @DisplayName("회원수정_실패_회원없음")
     void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        given(userRepository.findById(command.getId())).willReturn(Optional.empty())
+        given(userRepository.findById(commandToUser.getId())).willReturn(Optional.empty())
                 .willThrow(new CustomException(EMPTY_USER));
 
         //when
         //then
-        assertThrows(CustomException.class, () -> userService.modify(command));
+        CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
 
+        assertThat(exception.getErrorCode()).isEqualTo(EMPTY_USER);
     }
-/*
-    @Test
-    @DisplayName("회원수정_실패_중복(이메일or전화번호)")
-    void modifyFailByExistedPhoneNumberUnitTest() throws CustomException {
+
+
+    @ParameterizedTest
+    @MethodSource("emailAndPhoneNum")
+    @DisplayName("회원수정_실패_다른회원 정보중복(이메일or전화번호)")
+    void modifyFailByExistedEmailOrPhoneNumberUnitTest(String email, String phoneNum) throws CustomException {
         //given
         final User user = User.builder()
-                .userBasicInfo(UserBasicInfo.builder().phoneNumber("010-8710-1086").build())
+                .id(2L)
+                .userEmail(email)
+                .userBasicInfo(UserBasicInfo.builder().phoneNumber(phoneNum).build())
                 .build();
 
-        given(userRepository.findByUserBasicInfoPhoneNumber("010-8710-1086")).willReturn(Optional.of(user))
-                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
+
+        List<User> validateUser = new ArrayList<>();
+        validateUser.add(user);
+
+        System.out.println(validateUser);
+        given(userRepository.findById(commandToUser.getId())).willReturn(Optional.of(commandToUser));
+
+        assertNotEquals(user.getId(), commandToUser.getId());
 
         //when
+        doReturn(validateUser)
+                .doThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
+                .when(userRepository)
+                .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
+
         //then
         assertThrows(CustomException.class, () -> userService.modify(command));
+
     }
-    */
+
+    static Stream<Arguments> emailAndPhoneNum() {
+        return Stream.of(
+                arguments("lizzy@plgrim.com", "010-870-1086"),
+                arguments("lizy@plgrim.com", "010-8710-1086")
+        );
+    }
 }

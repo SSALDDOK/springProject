@@ -10,6 +10,8 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import javax.transaction.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +33,8 @@ class UserJpaRepositoryTest {
     @BeforeEach
     public void setUp() {
         //User 정보
-
         user = User.builder()
-                .id(1L)
-                .userEmail("lizzy@plgrim.com")
+                .userEmail("ezy@plgrim.com")
                 .userName("lizzy")
                 .password("jqijfe123")
                 .gender("F")
@@ -48,7 +48,6 @@ class UserJpaRepositoryTest {
         //User1 정보
 
         user1 = User.builder()
-                .id(2L)
                 .userEmail("ezz@plgrim.com")
                 .userName("lizy")
                 .password("jqife123")
@@ -62,7 +61,6 @@ class UserJpaRepositoryTest {
 
         //User2 정보
         user2 = User.builder()
-                .id(3L)
                 .userEmail("ezz2zze@plgrim.com")
                 .userName("izzy")
                 .password("qijfe123")
@@ -83,8 +81,8 @@ class UserJpaRepositoryTest {
         User result = userRepository.save(user);
 
         //then
+        System.out.println(result);
         assertThat(result).usingRecursiveComparison()
-                .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
     }
 
@@ -93,6 +91,8 @@ class UserJpaRepositoryTest {
     void findByUserEmailAndUserPhoneNumber() {
         //given
         userRepository.save(user);
+        List<User> testUSer = new ArrayList<>();
+        testUSer.add(user);
 
         //when
         List<User> result = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
@@ -101,10 +101,8 @@ class UserJpaRepositoryTest {
 
         //then
         //이게 맞는건가..?
-        assertThat(result.equals(user));
-//        assertThat(result.get()).usingRecursiveComparison()
-//                .ignoringFields("createAt", "updateAt")
-//                .isEqualTo(user);
+        assertThat(result).isEqualTo(testUSer);
+
     }
 
     @Test
@@ -119,8 +117,8 @@ class UserJpaRepositoryTest {
         //then
         assertFalse(findOne.isEmpty());
         assertThat(findOne.get()).usingRecursiveComparison()
-//                .ignoringFields("createAt", "updateAt")
                 .isEqualTo(user);
+
     }
 
 

@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 
@@ -50,6 +52,7 @@ public class UserServiceJoinTest {
                     .build())
             .birth("19970717")
             .build();
+
 
     @Test
     @DisplayName("회원가입_성공")
@@ -88,19 +91,35 @@ public class UserServiceJoinTest {
                 .userBasicInfo(UserBasicInfo.builder().phoneNumber(phoneNum).build())
                 .build();
 
+        final User commandToUser = User.builder()
+                .userEmail(command.getUserEmail())
+                .userBasicInfo(UserBasicInfo.builder()
+                        .phoneNumber(command.getUserBasicInfo().getPhoneNumber())
+                        .build())
+                .build();
+
+
         List<User> validateUser = new ArrayList<>();
         validateUser.add(user);
 
+        //when - 이메일이 중복됬을 때, 전화번호가 중복됬을 때
+        doReturn(validateUser)
+                .doThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
+                .when(userRepository)
+                .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
 
-        //when - 이메일이 중복됬을 때
+
+        //밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까?
+  /*    //when - 이메일이 중복됬을 때
         given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
                 .willReturn(validateUser)
-                .willThrow(new CustomException(DUPLICATE_EMAIL));
+                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM));
+//                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));*/
 
         //when - 전화 번호가 중복됬을 때
-        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
-                .willReturn(validateUser)
-                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
+//        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
+//                .willReturn(validateUser)
+//                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
 
         //then
         assertThrows(CustomException.class, () -> userService.join(command));
