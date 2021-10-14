@@ -15,18 +15,20 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
 
     /**
      * 로그인 POST Login("/login")
-     * 회원가입 POST Join("/join")
-     * 회원수정 PUT("/modify")
-     * 회원탈퇴 DELETE("/delete")
+     * 회원가입 POST Join("/users/user")
+     * 회원수정 PUT("/users/user")
+     * 회원탈퇴 DELETE("/users/{userId}")
      * 회원목록조회 GET ("/list")
      */
 
@@ -36,10 +38,11 @@ public class UserController {
     private final RequestMapper requestMapper;
 
     @Autowired
-    public UserController(UserService userService, RequestMapper requestMapper) {
+    public UserController(UserService userService) {
 
         this.userService = userService;
-        this.requestMapper = requestMapper;
+//        this.requestMapper = requestMapper;
+        this.requestMapper = new RequestMapper();
     }
 
     /**
@@ -47,7 +50,7 @@ public class UserController {
      *
      * @Param UserJoinReqDTO
      */
-    @PostMapping("/join")
+    @PostMapping("/user")
     public ResponseEntity<User> join(@RequestBody @Validated UserJoinReqDTO dto) {
 
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
@@ -65,7 +68,7 @@ public class UserController {
      *
      * @Param UserModifyReqDTO
      */
-    @PutMapping("/modify")
+    @PutMapping("/user")
     public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto) {
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
         UserCommand userCommand = requestMapper.toCommand(dto);
@@ -76,34 +79,30 @@ public class UserController {
         //3.Service 성공/실패 확인
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-/*
 
-    */
-/**
+    /**
      * 회원 탈퇴
      *
-     * @Param UserDeleteReqDTO
-     *//*
+     * @Param PathVariable userId
+     */
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<Object> delete(@RequestBody @Validated UserDeleteReqDTO dto) {
-        //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
-        UserCommand userCommand = requestMapper.toCommand(dto);
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<Object> delete(@PathVariable Long userId) {
 
+        log.info("userId = {}",userId);
         //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
-        userService.delete(userCommand);
+        userService.delete(userId);
 
         //3.Service 성공/실패 확인
         return new ResponseEntity<>(HttpStatus.OK);
     }
-*/
 /*
-    *//**
+    /**
      * 회원 목록 조회
      *
      * @Param page, pageCount
-     *//*
-    *//**수정 queryparam으로 변경*//*
+     */
+    /**수정 queryparam으로 변경*//*
     @GetMapping("/users/{page}/{pageCount}")
     public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {
 

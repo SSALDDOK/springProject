@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
@@ -45,7 +44,7 @@ public class UserServiceModifyTest {
 
     static UserCommand command;
 
-    static User commandToUser ;
+    static User commandToUser;
 
     @BeforeAll
     static void setUp() {
@@ -72,7 +71,6 @@ public class UserServiceModifyTest {
     }
 
 
-
     @Test
     @DisplayName("회원수정_성공")
     void modifySuccessUnitTest() {
@@ -94,6 +92,7 @@ public class UserServiceModifyTest {
         User result = userService.modify(command);
 
         //then
+        assertThat(result.getId()).isEqualTo(expected.getId());
         assertThat(result.getUserEmail()).isEqualTo(modifiedEmail);
     }
 
@@ -101,7 +100,12 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_실패_회원없음")
     void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        given(userRepository.findById(commandToUser.getId())).willReturn(Optional.empty())
+        User expected = User.builder()
+                .id(1L)
+                .userEmail(modifiedEmail)
+                .build();
+
+        given(userRepository.findById(expected.getId())).willReturn(Optional.empty())
                 .willThrow(new CustomException(EMPTY_USER));
 
         //when
@@ -117,29 +121,30 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_실패_다른회원 정보중복(이메일or전화번호)")
     void modifyFailByExistedEmailOrPhoneNumberUnitTest(String email, String phoneNum) throws CustomException {
         //given
-        final User user = User.builder()
+        User expected = User.builder()
                 .id(2L)
                 .userEmail(email)
-                .userBasicInfo(UserBasicInfo.builder().phoneNumber(phoneNum).build())
+                .userBasicInfo(UserBasicInfo.builder()
+                        .phoneNumber(phoneNum)
+                        .build())
                 .build();
 
 
         List<User> validateUser = new ArrayList<>();
-        validateUser.add(user);
+        validateUser.add(expected);
 
-        System.out.println(validateUser);
-        given(userRepository.findById(commandToUser.getId())).willReturn(Optional.of(commandToUser));
-
-        assertNotEquals(user.getId(), commandToUser.getId());
+        given(userRepository.findById(expected.getId())).willReturn(Optional.of(expected));
 
         //when
         doReturn(validateUser)
                 .doThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
                 .when(userRepository)
-                .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
+                .findOneByUserEmailOrUserBasicInfoPhoneNumber(expected.getUserEmail(), expected.getUserBasicInfo().getPhoneNumber());
 
         //then
-        assertThrows(CustomException.class, () -> userService.modify(command));
+        CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
+
+        assertThat(exception.getErrorCode()).isBetween(DUPLICATE_EMAIL, DUPLICATE_PHONE_NUM);
 
     }
 

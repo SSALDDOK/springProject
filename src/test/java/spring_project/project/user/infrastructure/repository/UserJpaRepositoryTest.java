@@ -5,11 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
-
-import javax.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +15,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-//@DataJpaTest
-@SpringBootTest
-@Transactional
+@DataJpaTest
 class UserJpaRepositoryTest {
 
     @Autowired
@@ -121,6 +116,19 @@ class UserJpaRepositoryTest {
 
     }
 
+     @Test
+    @DisplayName("회원목록 삭제")
+    void deleteById() {
+        //given
+        userRepository.save(user);
+
+        //when
+        userRepository.deleteById(user.getId());
+        Optional<User> result = userRepository.findById(user.getId());
+
+        //then
+        assertTrue(result.isEmpty());
+    }
 
    /* @Test
     @DisplayName("회원목록 조회")
@@ -142,17 +150,4 @@ class UserJpaRepositoryTest {
         assertTrue(result.size() <= pageable.getPageSize());
     }*/
 
-   /* @Test
-    @DisplayName("회원목록 삭제")
-    void deleteById() {
-        //given
-        userRepository.save(user);
-
-        //when
-        userRepository.deleteById(user.getId());
-        Optional<User> result = userRepository.findByUserEmail(user.getUserEmail());
-
-        //then
-        assertTrue(result.isEmpty());
-    }*/
 }

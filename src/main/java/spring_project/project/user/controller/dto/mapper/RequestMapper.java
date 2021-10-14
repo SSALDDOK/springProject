@@ -1,14 +1,12 @@
 package spring_project.project.user.controller.dto.mapper;
 
-import org.springframework.stereotype.Component;
-import spring_project.project.user.controller.dto.UserDeleteReqDTO;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 
-@Component
+
 public class RequestMapper {
 
     public UserCommand toCommand(UserJoinReqDTO dto){

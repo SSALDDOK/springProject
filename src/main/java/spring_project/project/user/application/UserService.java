@@ -123,22 +123,8 @@ public class UserService {
         log.info("findOneInfo = {}", duplicateCheckInfo);
 
         //받아온 list값만큼 반복실행
-        for (User u : duplicateCheckInfo) {
-            if (!u.getId().equals(user.getId())) {
-                //수정할 회원의 이메일이 DB에 존재하는 지 확인
-                if (u.getUserEmail().equals(user.getUserEmail())) {
-
-                    throw new CustomException(DUPLICATE_EMAIL);
-                    //수정할 회원의 번호가 DB에 존재하는 지 번호 확인
-                } else if (u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
-
-                    throw new CustomException(DUPLICATE_PHONE_NUM);
-                }
-            }
-        }
-
-        /*duplicateCheckInfo.forEach(m -> {
-            if (!user.getId().equals(m.getId())) {
+        duplicateCheckInfo.forEach(m -> {
+            if (!m.getId().equals(user.getId())) {
                 if (m.getUserEmail().equals(user.getUserEmail())) {
 
                     throw new CustomException(DUPLICATE_EMAIL);
@@ -148,7 +134,7 @@ public class UserService {
                     throw new CustomException(DUPLICATE_PHONE_NUM);
                 }
             }
-        });*/
+        });
 
     }
 
@@ -156,27 +142,24 @@ public class UserService {
  * 회원 탈퇴
  *
  * @Param UserDeleteDto
- *//*
+ */
 
-    public void delete(UserCommand command) {
-
-        User user = User.builder()
-                .getId(command.getId())
+    public void delete(Long id) {
+        User userId = User.builder()
+                .id(id)
                 .build();
 
         //삭제할 회원 조회
-        Optional<User> findOne = userRepository.findByUserEmail(user.getId());
+        Optional<User> findOne = userRepository.findById(userId.getId());
 
         //삭제할 회원이 없을때
         if (findOne.isEmpty()) {
             throw new CustomException(EMPTY_DELETE_USER);
         }
-*/
-
 
     //삭제로직
-//        userRepository.deleteById(user.getUserEmail());
-//    }
+        userRepository.deleteById(userId.getId());
+    }
     /*
      *//**
      * 회원 목록 조회

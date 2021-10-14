@@ -37,10 +37,9 @@ public class UserJoinReqDTO {
     @ValidationBasicField(name = name, length = 5, regex = nameRegex)
     private String userName; //이름
 
-    @NotBlank
     private String address; //주소
 
-    @ValidationBasicField(name = passwordName, length = 20, regex = passwordRegex)
+    @ValidationBasicField(name = passwordName, length = 15, regex = passwordRegex)
     private String password; //비밀번호
 
     @ValidationBasicField(name = phoneName, length = 15, regex = phoneRegex)

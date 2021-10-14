@@ -1,16 +1,13 @@
 package spring_project.project.user.application;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
@@ -18,7 +15,6 @@ import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Stream;
 

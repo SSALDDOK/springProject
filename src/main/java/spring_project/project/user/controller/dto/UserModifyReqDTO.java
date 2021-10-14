@@ -1,13 +1,13 @@
 package spring_project.project.user.controller.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationBasicField;
 
-import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
 import static spring_project.project.common.enums.Gender.GENDER_MALE;
@@ -16,6 +16,7 @@ import static spring_project.project.common.enums.ValidateRegex.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserModifyReqDTO {
 
     /**
@@ -27,7 +28,7 @@ public class UserModifyReqDTO {
      * 성별
      * 생년월일
      */
-
+    @NotNull
     private Long id;
 
     @ValidationBasicField(name = emailName, regex = emailRegex)
@@ -36,10 +37,9 @@ public class UserModifyReqDTO {
     @ValidationBasicField(name = name, length = 5, regex = nameRegex)
     private String userName; //이름
 
-    @NotBlank
     private String address; //주소
 
-    @ValidationBasicField(name = passwordName, length = 20, regex = passwordRegex)
+    @ValidationBasicField(name = passwordName, length = 15, regex = passwordRegex)
     private String password; //비밀번호
 
     @ValidationBasicField(name = phoneName, length = 15, regex = phoneRegex)

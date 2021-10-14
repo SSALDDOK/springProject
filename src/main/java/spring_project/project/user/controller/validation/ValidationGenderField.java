@@ -47,7 +47,7 @@ public @interface ValidationGenderField {
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
             //만약 해당 값이 null이거나 공백이지 않고, enum객체에 있는 값을 포함 할 때 통과
-            if (StringUtils.isNotBlank(value) && (value.contains(genderFemaleType) || value.contains(genderMaleType)))
+            if (StringUtils.isNotBlank(value) && (value.equals(genderFemaleType) || value.equals(genderMaleType)))
                 return true;
 
             context.disableDefaultConstraintViolation();
