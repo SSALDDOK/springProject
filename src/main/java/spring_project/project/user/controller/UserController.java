@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import spring_project.project.user.controller.dto.UserDeleteReqDTO;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
@@ -15,7 +14,6 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -30,6 +28,7 @@ public class UserController {
      * 회원수정 PUT("/users/user")
      * 회원탈퇴 DELETE("/users/{userId}")
      * 회원목록조회 GET ("/list")
+     * 과제!!!! url이름 변경
      */
 
     //받아온 값을 기능적으로 구현할수 있는 서비스 단으로 넘기기 위해서 사용
@@ -83,6 +82,7 @@ public class UserController {
     /**
      * 회원 탈퇴
      *
+     * 과제!!!! 특정 값만 받을 경우 경로변수로 받아줄 것
      * @Param PathVariable userId
      */
 
@@ -102,9 +102,9 @@ public class UserController {
      *
      * @Param page, pageCount
      */
-    /**수정 queryparam으로 변경*//*
-    @GetMapping("/users/{page}/{pageCount}")
-    public ResponseEntity<Object> list(@PathVariable int page, @PathVariable int pageCount) {
+    /**수정 queryparam으로 변경*/
+    @GetMapping
+    public ResponseEntity<Object> list(@RequestParam int page, @RequestParam int pageCount) {
 
         //경로변수로 받은 페이지,페이지 수 -> service
         Page<User> list = userService.list(page, pageCount);
@@ -116,5 +116,4 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
 
     }
-    */
 }

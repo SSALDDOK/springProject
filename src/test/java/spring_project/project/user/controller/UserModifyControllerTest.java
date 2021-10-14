@@ -11,18 +11,14 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
-import spring_project.project.common.enums.ErrorCode;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
@@ -31,15 +27,16 @@ import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
-import static spring_project.project.common.enums.ErrorCode.EMPTY_USER;
+import static spring_project.project.common.enums.ErrorCode.*;
+import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -61,32 +58,15 @@ public class UserModifyControllerTest {
 
     RequestMapper requestMapper;
 
-    UserJoinReqDTO dto;
-
     @BeforeEach
-    public void setup() throws Exception {
+    public void setup() {
 
         this.objectMapper = new ObjectMapper();
         this.requestMapper = new RequestMapper();
 
-        dto = UserJoinReqDTO.builder()
-                .userEmail("lizzy@plgrim.com")
-                .userName("이지연")
-                .password("password11")
-                .gender("F")
-                .address("incheon")
-                .phoneNumber("010-8710-1086")
-                .birth("19970717")
-                .build();
-
         this.mvc = webAppContextSetup(ctx)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
                 .build();
-
-        //회원가입 컨트롤러 거쳐서 저장
-        mvc.perform(post("/users/user")
-                .content(objectMapper.writeValueAsString(dto))
-                .contentType(MediaType.APPLICATION_JSON));
 
     }
 
@@ -121,6 +101,8 @@ public class UserModifyControllerTest {
 
         String modifyMapper = objectMapper.writeValueAsString(modifyDto);
 
+        String testUser = objectMapper.writeValueAsString(user);
+
         given(userService.modify(any())).willReturn(user);
 
         //when
@@ -130,14 +112,9 @@ public class UserModifyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(content().string(testUser))
                 .andReturn();
 
-        String resultContent = result.getResponse().getContentAsString();
-
-        User actual = objectMapper.readValue(resultContent, User.class);
-
-        //then
-        assertThat(actual).usingRecursiveComparison().ignoringFields("createAt", "updateAt").isEqualTo(user);
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
@@ -386,6 +363,62 @@ public class UserModifyControllerTest {
                 .andReturn();
     }
 
-    //중복 테스트 ??? 질문
+    @Test
+    @DisplayName("회원수정_컨트롤러_실패_이메일중복")
+    void joinControllerFailByEmailDuplicationUnitTest() throws Exception {
+        //given
+        UserModifyReqDTO failDto = UserModifyReqDTO.builder()
+                .id(1L)
+                .userEmail("lizy@plgrim.com")
+                .userName("이지연")
+                .password("password11")
+                .gender("F")
+                .address("incheon")
+                .phoneNumber("010-871-1086")
+                .birth("19970717")
+                .build();
+
+        //dto -> json
+        String testMapper = objectMapper.writeValueAsString(failDto);
+
+        given(userService.join(any())).willThrow(new CustomException(DUPLICATE_EMAIL));
+
+        //when
+        mvc.perform(post("/users/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(testMapper))
+                .andDo(print())
+                .andExpect(status().is(DUPLICATE_EMAIL.getHttpStatus().value()))
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("회원수정_컨트롤러_실패_전화번호 중복")
+    void joinControllerFailByPhoneNumberDuplicationUnitTest() throws Exception {
+        //given
+        UserJoinReqDTO failDto = UserJoinReqDTO.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("리리지")
+                .password("passwor11")
+                .gender("M")
+                .address("mikuk")
+                .phoneNumber("010-8710-1086")
+                .birth("19970727")
+                .build();
+
+        String testMapper = objectMapper.writeValueAsString(failDto);
+
+        given(userService.join(any())).willThrow(new CustomException(DUPLICATE_PHONE_NUM));
+        //when
+
+        mvc.perform(post("/users/user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(testMapper))
+                .andDo(print())
+                .andExpect(status().is(DUPLICATE_PHONE_NUM.getHttpStatus().value()))
+                .andReturn();
+
+    }
 
 }

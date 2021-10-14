@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @Builder
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 public class User extends BaseTime {
 
@@ -36,6 +36,5 @@ public class User extends BaseTime {
 
     @Column(name = "birth")
     private String birth; //생년월일
-
 
 }

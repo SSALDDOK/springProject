@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import spring_project.project.common.exception.CustomException;
@@ -25,7 +24,6 @@ import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -54,24 +52,11 @@ class UserJoinControllerTest {
 
     RequestMapper requestMapper;
 
-    UserJoinReqDTO dto;
-
     @BeforeEach
-     void setup() {
+    void setup() {
 
         this.requestMapper = new RequestMapper();
         this.objectMapper = new ObjectMapper();
-
-        dto = UserJoinReqDTO.builder()
-                .userEmail("lizzy@plgrim.com")
-                .userName("이지연")
-                .password("password11")
-                .gender("F")
-                .address("incheon")
-                .phoneNumber("010-8710-1086")
-                .birth("19970717")
-                .build();
-
 
         this.mvc = webAppContextSetup(ctx)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
@@ -82,9 +67,19 @@ class UserJoinControllerTest {
     @Test
     @DisplayName("회원가입_컨트롤러_성공")
     void joinControllerSuccessUnitTest() throws Exception {
-
         //given
-        final User user = User.builder()
+        UserJoinReqDTO dto = UserJoinReqDTO.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("이지연")
+                .password("password11")
+                .gender("F")
+                .address("incheon")
+                .phoneNumber("010-8710-1086")
+                .birth("19970717")
+                .build();
+
+        User user = User.builder()
+                .id(1L)
                 .userEmail("lizzy@plgrim.com")
                 .userName("이지연")
                 .password("password11")
@@ -99,25 +94,20 @@ class UserJoinControllerTest {
         //dto -> json
         String mapper = objectMapper.writeValueAsString(dto);
 
+        String testUser = objectMapper.writeValueAsString(user);
+
         given(userService.join(any())).willReturn(user);
 
         //when
-        MvcResult result = mvc.perform(post("/users/user")
-                .accept(MediaType.APPLICATION_JSON)
+        //then
+        mvc.perform(post("/users/user")
                 .content(mapper)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(content().string(testUser))
                 .andReturn();
 
-        //컨트롤러 거친 후 body받기
-        String resultContent = result.getResponse().getContentAsString();
-
-        //비교할 수 있도록 body json => User객체로 바꾸기
-        User actual = objectMapper.readValue(resultContent, User.class);
-
-        //then
-        assertThat(actual).usingRecursiveComparison().ignoringFields("id", "createAt", "updateAt").isEqualTo(user);
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
@@ -127,6 +117,7 @@ class UserJoinControllerTest {
     @DisplayName("회원가입_이메일유효성검사_실패")
 //    @CsvSource({"이메일 값을 입력해 주세요.", "이메일 값을 입력해 주세요.", "이메일 형식에 맞게 입력해 주세요."})
     void joinControllerFailByEmailValidationUnitTest(String email) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail(email)
                 .userName("리리지")
@@ -137,14 +128,10 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -160,6 +147,7 @@ class UserJoinControllerTest {
     @ValueSource(strings = {"lizzy", "리지지지지"})
     @DisplayName("회원가입_이름유효성검사_실패")
     void joinControllerFailByNameValidationUnitTest(String name) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName(name)
@@ -170,14 +158,10 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -193,6 +177,7 @@ class UserJoinControllerTest {
     @ValueSource(strings = {"asdfewdsfefe1112", "z!", "한글불가"})
     @DisplayName("회원가입_비밀번호 유효성검사_실패")
     void joinControllerFailByPasswordValidationUnitTest(String password) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("리리지")
@@ -203,14 +188,10 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -226,6 +207,7 @@ class UserJoinControllerTest {
     @ValueSource(strings = {"010-87777-77777", "asdfew", "한글불가"})
     @DisplayName("회원가입_전화번호 유효성검사_실패")
     void joinControllerFailByPhoneNumberValidationUnitTest(String phoneNum) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("리리지")
@@ -236,14 +218,10 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -259,6 +237,7 @@ class UserJoinControllerTest {
     @ValueSource(strings = {"Female"})
     @DisplayName("회원가입_성별유효성검사_실패")
     void joinControllerFailByGenderValidationUnitTest(String gender) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("리리지")
@@ -269,14 +248,10 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -292,6 +267,7 @@ class UserJoinControllerTest {
     @ValueSource(strings = {"199707177", "970717"})
     @DisplayName("회원가입_생년월일 유효성검사_실패")
     void joinControllerFailByBirthValidationUnitTest(String birth) throws Exception {
+        //given
         UserJoinReqDTO failDto = UserJoinReqDTO.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("리리지")
@@ -302,14 +278,10 @@ class UserJoinControllerTest {
                 .birth(birth)
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
-
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -334,17 +306,13 @@ class UserJoinControllerTest {
                 .build();
 
         //dto -> json
-        String mapper = objectMapper.writeValueAsString(dto);
 
         String testMapper = objectMapper.writeValueAsString(failDto);
 
         given(userService.join(any())).willThrow(new CustomException(DUPLICATE_EMAIL));
 
         //when
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
-
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
@@ -368,15 +336,13 @@ class UserJoinControllerTest {
                 .birth("19970727")
                 .build();
 
-        String mapper = objectMapper.writeValueAsString(dto);
+
         String testMapper = objectMapper.writeValueAsString(failDto);
 
         given(userService.join(any())).willThrow(new CustomException(DUPLICATE_PHONE_NUM));
-        //when
-        mvc.perform(post("/users/user")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper));
 
+        //when
+        //then
         mvc.perform(post("/users/user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))

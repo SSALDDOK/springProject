@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.BDDMockito.willReturn;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 
@@ -99,23 +99,18 @@ public class UserServiceJoinTest {
         validateUser.add(user);
 
         //when - 이메일이 중복됬을 때, 전화번호가 중복됬을 때
-        doReturn(validateUser)
-                .doThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
-                .when(userRepository)
+        willReturn(validateUser)
+                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
+                .given(userRepository)
                 .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
+        //doReturn_when 으로 쓸 수도 있음
 
-
-        //밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까?
-  /*    //when - 이메일이 중복됬을 때
-        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
+        //밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까 ?
+      //when - 이메일이 중복됬을 때
+   /*     given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
                 .willReturn(validateUser)
                 .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM));
-//                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));*/
-
-        //when - 전화 번호가 중복됬을 때
-//        given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
-//                .willReturn(validateUser)
-//                .willThrow(new CustomException(DUPLICATE_PHONE_NUM));
+                */
 
         //then
         assertThrows(CustomException.class, () -> userService.join(command));

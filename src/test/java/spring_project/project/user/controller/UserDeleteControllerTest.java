@@ -14,17 +14,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
-import spring_project.project.user.controller.dto.UserJoinReqDTO;
-import spring_project.project.user.controller.dto.mapper.RequestMapper;
-import spring_project.project.user.domain.model.aggregates.User;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static spring_project.project.common.enums.ErrorCode.EMPTY_DELETE_USER;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(UserController.class)
@@ -43,16 +41,10 @@ public class UserDeleteControllerTest {
 
     ObjectMapper objectMapper;
 
-    RequestMapper requestMapper;
-
-
     @BeforeEach
     void setUp() {
 
-        this.requestMapper = new RequestMapper();
         this.objectMapper = new ObjectMapper();
-
-
 
         this.mvc = webAppContextSetup(ctx)
                 .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
@@ -64,19 +56,34 @@ public class UserDeleteControllerTest {
     @DisplayName("회원탈퇴_성공")
     void deleteControllerSuccessUnitTest() throws Exception {
         //given
-        Long id =1L;
+        Long deleteId =1L;
 
-        String deleteId = objectMapper.writeValueAsString(id);
-        willDoNothing().given(userService).delete(id);
+        willDoNothing().given(userService).delete(deleteId);
 
         //when
         //then
-        mvc.perform(delete("/users/{userId}",deleteId)
+        mvc.perform(delete("/users/user/{userId}",deleteId)
         .contentType(MediaType.APPLICATION_JSON)) //content 타입 컨트롤러 반환값
                 .andDo(print())
+                .andExpect(status().isOk())
                 .andReturn();
 
     }
 
+    @Test
+    @DisplayName("회원탈퇴_실패(회원없음)")
+    void deleteControllerFailByEmptyUser() throws Exception{
+        //given
+        Long deleteId = 1L;
+
+        willThrow(new CustomException(EMPTY_DELETE_USER)).given(userService).delete(deleteId);
+
+        mvc.perform(delete("/users/user/{userId}",deleteId)
+        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().is(EMPTY_DELETE_USER.getHttpStatus().value()))
+                .andReturn();
+
+    }
 
 }

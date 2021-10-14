@@ -30,46 +30,43 @@ public class UserServiceListTest {
     @InjectMocks
     UserService userService;
 
-    final User user = User.builder()
-            .userEmail("lizzy@plgrim.com")
-            .userName("lizzy")
-            .password("jqijfe123")
-            .gender("F")
-            .userBasicInfo(UserBasicInfo.builder()
-                    .address("incheon")
-                    .phoneNumber("010-8710-1086")
-                    .build())
-            .birth("19970717")
-            .build();
-
-    final User user1 = User.builder()
-            .userEmail("lizzy@plgrim.com")
-            .userName("lizzy")
-            .password("jqijfe123")
-            .gender("F")
-            .userBasicInfo(UserBasicInfo.builder()
-                    .address("incheon")
-                    .phoneNumber("010-8710-1086")
-                    .build())
-            .birth("19970717")
-            .build();
-
-/*
     @Test
     @DisplayName("회원목록조회_성공")
     void listSuccessUnitTest() {
         //given
-        final Pageable pageable = PageRequest.of(0, 2);
-        List<User> userList = Arrays.asList(user,user1);
+        User user = User.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("lizzy")
+                .password("jqijfe123")
+                .gender("F")
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
+                .birth("19970717")
+                .build();
 
-        given(userRepository.findAll(pageable))
-                .willReturn(new PageImpl<>(userList));
+        User user1 = User.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("lizzy")
+                .password("jqijfe123")
+                .gender("F")
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
+                .birth("19970717")
+                .build();
+
+        Pageable pageable = PageRequest.of(0, 2);
+        List<User> userList = Arrays.asList(user, user1);
+
+        given(userRepository.findAll(pageable)).willReturn(new PageImpl<>(userList));
 
         //when
-        Page<User> pageList = userService.list(0,2);
+        Page<User> pageList = userService.list(0, 2);
 
         //then
         assertTrue(pageList.getContent().size() <= pageable.getPageSize());
     }
-    */
 }

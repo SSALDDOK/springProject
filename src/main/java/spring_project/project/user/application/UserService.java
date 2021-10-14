@@ -9,11 +9,9 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Optional.of;
 import static spring_project.project.common.enums.ErrorCode.*;
 
 
@@ -22,7 +20,7 @@ import static spring_project.project.common.enums.ErrorCode.*;
 public class UserService {
 
     /**
-     * 회원가입 save
+     * 회원가입 join
      * 회원수정 modify
      * 회원탈퇴 delete
      * 회원조회 list
@@ -64,6 +62,7 @@ public class UserService {
 
     /**
      * 중복체크
+     * 과제!!!! - repository를 한번 거쳐서 email,phoneNumber 값 가져오기
      */
     private void validateDuplicatedJoinUser(User user) throws CustomException {
 
@@ -72,13 +71,15 @@ public class UserService {
 
         log.info("validateUser ={}", validateUser);
 
-        for (User u : validateUser) {
+        //분기처리하는 게 맞나요? + foreach문법은 잘 안쓰이나요? (테스트시 빨간 줄로 뜸)
+        for (User u : validateUser)
             if (u.getUserEmail().equals(user.getUserEmail())) {
                 throw new CustomException(DUPLICATE_EMAIL);
+
             } else if (u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
                 throw new CustomException(DUPLICATE_PHONE_NUM);
             }
-        }
+
     }
 
     /**
@@ -87,7 +88,6 @@ public class UserService {
      * @Param UserUpdateDto
      */
     public User modify(UserCommand command) throws CustomException {
-
 
         User user = User.builder()
                 .id(command.getId())
@@ -102,14 +102,6 @@ public class UserService {
 
         log.info("user = {}", user);
 
-        //유효성 검사
-        validateDuplicatedModifyUser(user);
-
-        //유효성 검사 통과 시 저장
-        return userRepository.save(user);
-    }
-
-    private void validateDuplicatedModifyUser(User user) {
         //DB에 해당 유저가 존재하는 지 확인
         Optional<User> findOne = userRepository.findById(user.getId());
 
@@ -118,31 +110,35 @@ public class UserService {
             throw new CustomException(EMPTY_USER);
         }
 
+        //유효성 검사
+        validateDuplicatedModifyUser(user);
+
+        //유효성 검사 통과 시 저장
+        return userRepository.save(user);
+    }
+
+    private void validateDuplicatedModifyUser(User user) {
         //조회한 값들 List 로 받아오기
-        List<User> duplicateCheckInfo = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
-        log.info("findOneInfo = {}", duplicateCheckInfo);
+        List<User> validateUser = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
 
         //받아온 list값만큼 반복실행
-        duplicateCheckInfo.forEach(m -> {
-            if (!m.getId().equals(user.getId())) {
-                if (m.getUserEmail().equals(user.getUserEmail())) {
+        for (User u : validateUser)
+            if (!u.getId().equals(user.getId()))
 
+                if (u.getUserEmail().equals(user.getUserEmail())) {
                     throw new CustomException(DUPLICATE_EMAIL);
                     //수정할 회원의 번호가 DB에 존재하는 지 번호 확인
-                } else if (m.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
-
+                } else if (u.getUserBasicInfo().getPhoneNumber().equals(user.getUserBasicInfo().getPhoneNumber())) {
                     throw new CustomException(DUPLICATE_PHONE_NUM);
                 }
-            }
-        });
 
     }
 
-/**
- * 회원 탈퇴
- *
- * @Param UserDeleteDto
- */
+    /**
+     * 회원 탈퇴
+     *
+     * @Param Long id
+     */
 
     public void delete(Long id) {
         User userId = User.builder()
@@ -157,19 +153,20 @@ public class UserService {
             throw new CustomException(EMPTY_DELETE_USER);
         }
 
-    //삭제로직
+        //삭제로직
         userRepository.deleteById(userId.getId());
     }
     /*
-     *//**
+     */
+
+    /**
      * 회원 목록 조회
      *
-     * @Param page, pageCount
-     *//*
+     * @Param int page ,int pageCount
+     */
     public Page<User> list(int page, int pageCount) {
 
         //페이징 처리에 받게 반환
         return userRepository.findAll(PageRequest.of(page, pageCount));
     }
-    */
 }

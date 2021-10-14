@@ -24,10 +24,9 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.BDDMockito.willReturn;
 import static spring_project.project.common.enums.ErrorCode.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,10 +43,10 @@ public class UserServiceModifyTest {
 
     static UserCommand command;
 
-    static User commandToUser;
 
     @BeforeAll
     static void setUp() {
+        //회원수정 command
         command = UserCommand.builder()
                 .id(1L)
                 .userEmail(modifiedEmail)
@@ -59,14 +58,6 @@ public class UserServiceModifyTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
-                .build();
-
-        commandToUser = User.builder()
-                .id(command.getId())
-                .userEmail(command.getUserEmail())
-                .userBasicInfo(UserBasicInfo.builder()
-                        .phoneNumber(command.getUserBasicInfo().getPhoneNumber())
-                        .build())
                 .build();
     }
 
@@ -80,10 +71,10 @@ public class UserServiceModifyTest {
                 .userEmail(modifiedEmail)
                 .build();
 
-        given(userRepository.findById(expected.getId())).willReturn(Optional.of(expected));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(new User()));
 
-        doReturn(new ArrayList<>())
-                .when(userRepository)
+        willReturn(new ArrayList<>())
+                .given(userRepository)
                 .findOneByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
 
         given(userRepository.save(any())).willReturn(expected);
@@ -100,26 +91,21 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_실패_회원없음")
     void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        User expected = User.builder()
-                .id(1L)
-                .userEmail(modifiedEmail)
-                .build();
-
-        given(userRepository.findById(expected.getId())).willReturn(Optional.empty())
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty())
                 .willThrow(new CustomException(EMPTY_USER));
 
         //when
-        //then
         CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
 
+        //then
         assertThat(exception.getErrorCode()).isEqualTo(EMPTY_USER);
     }
 
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {arguments} {displayName}")
     @MethodSource("emailAndPhoneNum")
     @DisplayName("회원수정_실패_다른회원 정보중복(이메일or전화번호)")
-    void modifyFailByExistedEmailOrPhoneNumberUnitTest(String email, String phoneNum) throws CustomException {
+    void modifyFailByExistedEmailOrPhoneNumberUnitTest(String email, String phoneNum) throws CustomException{
         //given
         User expected = User.builder()
                 .id(2L)
@@ -133,17 +119,17 @@ public class UserServiceModifyTest {
         List<User> validateUser = new ArrayList<>();
         validateUser.add(expected);
 
-        given(userRepository.findById(expected.getId())).willReturn(Optional.of(expected));
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(new User()));
+
+        willReturn(validateUser)
+                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
+                .given(userRepository)
+                .findOneByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
 
         //when
-        doReturn(validateUser)
-                .doThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
-                .when(userRepository)
-                .findOneByUserEmailOrUserBasicInfoPhoneNumber(expected.getUserEmail(), expected.getUserBasicInfo().getPhoneNumber());
-
-        //then
         CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
 
+        //then
         assertThat(exception.getErrorCode()).isBetween(DUPLICATE_EMAIL, DUPLICATE_PHONE_NUM);
 
     }

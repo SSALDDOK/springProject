@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -28,6 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .get(0)
                         .getDefaultMessage()), headers, status, request);
     }
+/*
 
     @ExceptionHandler(ConstraintViolationException.class)
     protected String handleCustomException(ConstraintViolationException e) {
@@ -40,6 +38,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("handleCustomException throw ValidationException : {}", e.getMessage());
         return e.getMessage();
     }
+*/
 
     //규격맞추기
     @ExceptionHandler(value = {CustomException.class})

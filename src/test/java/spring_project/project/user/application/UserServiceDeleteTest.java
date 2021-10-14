@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
-import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;

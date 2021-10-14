@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
@@ -91,8 +94,6 @@ class UserJpaRepositoryTest {
 
         //when
         List<User> result = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
-        System.out.println("result= " + result);
-        System.out.println("user= " + user);
 
         //then
         //이게 맞는건가..?
@@ -130,7 +131,7 @@ class UserJpaRepositoryTest {
         assertTrue(result.isEmpty());
     }
 
-   /* @Test
+    @Test
     @DisplayName("회원목록 조회")
     void PageFindAll() {
         //given
@@ -145,9 +146,8 @@ class UserJpaRepositoryTest {
         Page<User> list = userRepository.findAll(pageable);
         List<User> result = list.getContent();
 
-        System.out.println("result = " + result);
         //then
         assertTrue(result.size() <= pageable.getPageSize());
-    }*/
+    }
 
 }
