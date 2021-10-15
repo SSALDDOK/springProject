@@ -17,6 +17,7 @@ import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 
@@ -67,6 +68,6 @@ public class UserServiceListTest {
         Page<User> pageList = userService.list(0, 2);
 
         //then
-        assertTrue(pageList.getContent().size() <= pageable.getPageSize());
+        assertThat(pageList.getContent()).isEqualTo(userList);
     }
 }

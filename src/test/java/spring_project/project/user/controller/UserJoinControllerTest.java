@@ -110,6 +110,9 @@ class UserJoinControllerTest {
 
     }
 
+    /**Q
+     * 필드 유효성 검사가 많을 경우 MethodSource와 ValueSource중 무엇을 쓰는게 나을까요?
+     * */
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
     @NullAndEmptySource
     //이메일 정규식 불일치

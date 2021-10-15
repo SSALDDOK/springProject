@@ -14,6 +14,8 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -40,7 +42,6 @@ public class UserController {
     public UserController(UserService userService) {
 
         this.userService = userService;
-//        this.requestMapper = requestMapper;
         this.requestMapper = new RequestMapper();
     }
 
@@ -96,15 +97,15 @@ public class UserController {
         //3.Service 성공/실패 확인
         return new ResponseEntity<>(HttpStatus.OK);
     }
-/*
+
     /**
      * 회원 목록 조회
-     *
-     * @Param page, pageCount
-     */
-    /**수정 queryparam으로 변경*/
+     * 과제!!!!! 수정 queryparam으로 변경
+     * @Param page, pageCount*/
+
     @GetMapping
-    public ResponseEntity<Object> list(@RequestParam int page, @RequestParam int pageCount) {
+    public ResponseEntity<Object> list(@RequestParam @NotNull int page, @RequestParam int pageCount) {
+        log.info("request param ={}",page);
 
         //경로변수로 받은 페이지,페이지 수 -> service
         Page<User> list = userService.list(page, pageCount);

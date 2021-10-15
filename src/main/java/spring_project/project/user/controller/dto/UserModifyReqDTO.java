@@ -20,6 +20,7 @@ import static spring_project.project.common.enums.ValidateRegex.*;
 public class UserModifyReqDTO {
 
     /**
+     * id 회원번호
      * 아이디(이메일)
      * 이름
      * 패스워드
@@ -48,7 +49,7 @@ public class UserModifyReqDTO {
     @ValidationGenderField(genderMaleType = GENDER_MALE, genderFemaleType = GENDER_FEMALE)
     private String gender; //성별
 
-    @ValidationBasicField(name = birthName, length = 9, regex = birthRegex)
+    @ValidationBasicField(name = birthName, regex = birthRegex)
     private String birth; //생년월일
 
 }

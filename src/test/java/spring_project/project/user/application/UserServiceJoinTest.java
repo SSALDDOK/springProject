@@ -105,7 +105,7 @@ public class UserServiceJoinTest {
                 .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
         //doReturn_when 으로 쓸 수도 있음
 
-        //밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까 ?
+        /**밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까 ? 순서에 영향이 있기 때문?*/
       //when - 이메일이 중복됬을 때
    /*     given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
                 .willReturn(validateUser)

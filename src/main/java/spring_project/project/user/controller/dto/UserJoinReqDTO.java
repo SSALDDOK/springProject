@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationBasicField;
 
-import javax.validation.constraints.NotBlank;
 
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
 import static spring_project.project.common.enums.Gender.GENDER_MALE;
@@ -48,7 +47,7 @@ public class UserJoinReqDTO {
     @ValidationGenderField(genderMaleType = GENDER_MALE, genderFemaleType = GENDER_FEMALE)
     private String gender; //성별
 
-    @ValidationBasicField(name = birthName, length = 9, regex = birthRegex)
+    @ValidationBasicField(name = birthName, regex = birthRegex)
     private String birth; //생년월일
 
 }

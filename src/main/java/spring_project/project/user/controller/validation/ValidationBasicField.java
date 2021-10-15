@@ -49,20 +49,14 @@ public @interface ValidationBasicField {
 
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            return checkValidate(value, context);
+            return checkRegexValidate(value, context) && checkLengthValidate(value,context);
 
         }
 
-        private boolean checkValidate(String value, ConstraintValidatorContext context) {
+        private boolean checkRegexValidate(String value, ConstraintValidatorContext context) {
             //공백이거나 null값 일 때
             if (!StringUtils.isNotBlank(value)) {
                 addMsgMethod(context, String.format("%s 값을 입력해 주세요.", name));
-                return false;
-            }
-
-            //들어온 length가 defalut값이 아니고, length이하일 때
-            if (length != 0 && !(value.length() < length)) {
-                addMsgMethod(context, String.format("%s은 %d 이하로 입력해주세요.", name, length));
                 return false;
             }
 
@@ -71,6 +65,16 @@ public @interface ValidationBasicField {
             //지정한 형식에 맞는지 확인
             return value.matches(regex);
 
+        }
+
+        private boolean checkLengthValidate(String value, ConstraintValidatorContext context) {
+            //공백이거나 null값 일 때
+            if (length != 0 && !(value.length() < length)) {
+                addMsgMethod(context, String.format("%s은 %d 이하로 입력해주세요.", name, length));
+                return false;
+            }
+
+            return true;
         }
 
         private void addMsgMethod(ConstraintValidatorContext context, String msg) {

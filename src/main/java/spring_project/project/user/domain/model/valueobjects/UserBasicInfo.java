@@ -18,5 +18,4 @@ public class UserBasicInfo {
     @Column(name = "address")
     private String address; //주소
 
-
 }

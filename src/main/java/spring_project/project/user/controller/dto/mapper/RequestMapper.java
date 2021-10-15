@@ -5,8 +5,6 @@ import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
-
-
 public class RequestMapper {
 
     public UserCommand toCommand(UserJoinReqDTO dto){

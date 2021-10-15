@@ -71,7 +71,11 @@ public class UserService {
 
         log.info("validateUser ={}", validateUser);
 
-        //분기처리하는 게 맞나요? + foreach문법은 잘 안쓰이나요? (테스트시 빨간 줄로 뜸)
+        /**Q-
+         * 분기처리하는 게 맞나요?
+         * foreach문법은 잘 안쓰이나요? (테스트 시 빨간 줄로 뜸)
+         * */
+
         for (User u : validateUser)
             if (u.getUserEmail().equals(user.getUserEmail())) {
                 throw new CustomException(DUPLICATE_EMAIL);
@@ -166,7 +170,7 @@ public class UserService {
      */
     public Page<User> list(int page, int pageCount) {
 
-        //페이징 처리에 받게 반환
+        //페이징 처리에 맞게 반환
         return userRepository.findAll(PageRequest.of(page, pageCount));
     }
 }

@@ -7,8 +7,6 @@ import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 @Getter
 @Builder
-//@ToString
-//@NoArgsConstructor
 @AllArgsConstructor
 //dto 변환
 public class UserCommand {

@@ -17,13 +17,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     //ResponseEntityExceptionHandler안에 이미 선언되있어서 오버라이딩해서 만들어야 함
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        log.error("ex:{}", ex.getMessage());
-        return handleExceptionInternal(ex, ResponseEntity.status(status)
-                .body(ex.getBindingResult()
+            MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        log.error("ex:{}", e.getMessage());
+
+        return handleExceptionInternal(e, ResponseEntity.status(status)
+                .body(e.getBindingResult()
                         .getAllErrors()
                         .get(0)
                         .getDefaultMessage()), headers, status, request);
+    }
+
+    //규격맞추기
+    @ExceptionHandler(value = {CustomException.class})
+    protected ResponseEntity<Object> handleCustomException(CustomException e) {
+        log.error("handleCustomException throw CustomException : {}", e.getErrorCode());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+                .body(ErrorResponse.builder()
+                        .status(e.getErrorCode().getHttpStatus().value())
+                        .error(e.getErrorCode().getHttpStatus().name())
+                        .code(e.getErrorCode().name())
+                        .message(e.getErrorCode().getDetail())
+                        .build()
+                );
     }
 /*
 
@@ -40,17 +55,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 */
 
-    //규격맞추기
-    @ExceptionHandler(value = {CustomException.class})
-    protected ResponseEntity<Object> handleCustomException(CustomException e) {
-        log.error("handleCustomException throw CustomException : {}", e.getErrorCode());
-        return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(ErrorResponse.builder()
-                        .status(e.getErrorCode().getHttpStatus().value())
-                        .error(e.getErrorCode().getHttpStatus().name())
-                        .code(e.getErrorCode().name())
-                        .message(e.getErrorCode().getDetail())
-                        .build()
-                );
-    }
+
 }
