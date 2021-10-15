@@ -93,10 +93,9 @@ class UserJpaRepositoryTest {
         testUSer.add(user);
 
         //when
-        List<User> result = userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
+        List<User> result = userRepository.findByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
 
         //then
-        //이게 맞는건가..?
         assertThat(result).isEqualTo(testUSer);
 
     }
