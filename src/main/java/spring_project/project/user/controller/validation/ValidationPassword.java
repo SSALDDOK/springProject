@@ -7,65 +7,66 @@ import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.Payload;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@Target({TYPE, METHOD, FIELD})
+@Target({FIELD, METHOD, TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ValidationBasicField.NumberValidator.class)
-public @interface ValidationBasicField {
+@Constraint(validatedBy = ValidationPassword.PasswordValidator.class)
+public @interface ValidationPassword {
 
-    String message() default "Validation(NumberField) error";
+    String message() default "Validation(PasswordField) error";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    String name() default "";
+    String name();
 
-    String regex() default "";
+    int min() default 5;
+
+    int max() default 15;
+
+    String regex();
 
 
     @Slf4j
-    class NumberValidator implements ConstraintValidator<ValidationBasicField, String> {
+    class PasswordValidator implements ConstraintValidator<ValidationPassword, String> {
         private String name;
+        private int MIN;
+        private int MAX;
         private String regex;
 
+
         @Override
-        public void initialize(ValidationBasicField constraintAnnotation) {
+        public void initialize(ValidationPassword constraintAnnotation) {
             ConstraintValidator.super.initialize(constraintAnnotation);
             name = constraintAnnotation.name();
+            MIN = constraintAnnotation.min();
+            MAX = constraintAnnotation.max();
             regex = constraintAnnotation.regex();
         }
 
-        @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            return checkRegexValidate(value, context);
 
+            return checkRegexValidate(value, context) ;
         }
 
         private boolean checkRegexValidate(String value, ConstraintValidatorContext context) {
-            //공백이거나 null값 일 때
+            //공백이거나 null값일 때
             if (StringUtils.isBlank(value)) {
-                addMsgMethod(context, String.format("%s 값을 입력해 주세요.", name));
+                addMsgMethod(context, String.format("%s값을 입력해 주세요.", name));
                 return false;
             }
 
-            //result 변수따로 선언 _ 명시적으로 만들기
             if (!value.matches(regex)) {
-                addMsgMethod(context, String.format("%s 형식에 맞게 입력해 주세요.", name));
+                addMsgMethod(context, String.format("%s 형식에 맞게 입력해 주세요.(영문, 특수문자 , "+MIN+"이상 "+MAX+"이하)", name));
                 return false;
             }
-            //지정한 형식에 맞는지 확인
             return true;
-
         }
-
         private void addMsgMethod(ConstraintValidatorContext context, String msg) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(msg).addConstraintViolation();

@@ -1,5 +1,6 @@
 package spring_project.project.user.application;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,17 +38,22 @@ public class UserServiceJoinTest {
     @InjectMocks
     private UserService userService;
 
-    final UserCommand command = UserCommand.builder()
-            .userEmail("lizzy@plgrim.com")
-            .userName("lizzy")
-            .password("jqijfe123")
-            .gender("F")
-            .userBasicInfo(UserBasicInfo.builder()
-                    .address("incheon")
-                    .phoneNumber("010-8710-1086")
-                    .build())
-            .birth("19970717")
-            .build();
+    static UserCommand command;
+
+    @BeforeAll
+    static void setUp(){
+        command = UserCommand.builder()
+                .userEmail("lizzy@plgrim.com")
+                .userName("lizzy")
+                .password("jqijfe123")
+                .gender("F")
+                .userBasicInfo(UserBasicInfo.builder()
+                        .address("incheon")
+                        .phoneNumber("010-8710-1086")
+                        .build())
+                .birth("19970717")
+                .build();
+    }
 
 
     @Test
@@ -100,20 +106,14 @@ public class UserServiceJoinTest {
 
         //when - 이메일이 중복됬을 때, 전화번호가 중복됬을 때
         willReturn(validateUser)
-                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
                 .given(userRepository)
-                .findOneByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
-        //doReturn_when 으로 쓸 수도 있음
+                .findByUserEmailOrUserBasicInfoPhoneNumber(commandToUser.getUserEmail(), commandToUser.getUserBasicInfo().getPhoneNumber());
+        //doReturn|when 으로 쓸 수도 있음
 
-        /**밑에 코드들은 디버깅 시 오류가 뜸 ? 왤까 ? 순서에 영향이 있기 때문?*/
-      //when - 이메일이 중복됬을 때
-   /*     given(userRepository.findOneByUserEmailOrUserBasicInfoPhoneNumber(command.getUserEmail(), command.getUserBasicInfo().getPhoneNumber()))
-                .willReturn(validateUser)
-                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM));
-                */
+        CustomException exception = assertThrows(CustomException.class, () -> userService.join(command));
 
         //then
-        assertThrows(CustomException.class, () -> userService.join(command));
+        assertThat(exception.getErrorCode()).isBetween(DUPLICATE_EMAIL,DUPLICATE_PHONE_NUM);
     }
 
     static Stream<Arguments> emailAndPhoneNum() {

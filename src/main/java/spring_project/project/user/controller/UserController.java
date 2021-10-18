@@ -14,14 +14,13 @@ import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
+import static spring_project.project.common.enums.UserUrl.*;
+
 @RestController
-@RequestMapping("/users")
+@RequestMapping(USER_ROOT_PATH)
 @Slf4j
-@Validated
 public class UserController {
 
     /**
@@ -30,7 +29,8 @@ public class UserController {
      * 회원수정 PUT("/users/user")
      * 회원탈퇴 DELETE("/users/{userId}")
      * 회원목록조회 GET ("/list")
-     * 과제!!!! url이름 변경
+     * <p>
+     * 숙제!!!! url이름 변경
      */
 
     //받아온 값을 기능적으로 구현할수 있는 서비스 단으로 넘기기 위해서 사용
@@ -50,7 +50,7 @@ public class UserController {
      *
      * @Param UserJoinReqDTO
      */
-    @PostMapping("/user")
+    @PostMapping(USER_NEW)
     public ResponseEntity<User> join(@RequestBody @Validated UserJoinReqDTO dto) {
 
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
@@ -68,7 +68,7 @@ public class UserController {
      *
      * @Param UserModifyReqDTO
      */
-    @PutMapping("/user")
+    @PutMapping
     public ResponseEntity<User> modify(@RequestBody @Validated UserModifyReqDTO dto) {
         //1. dto Mapper 객체매핑 ->builder 시켜서 entity형식으로 교체
         UserCommand userCommand = requestMapper.toCommand(dto);
@@ -82,35 +82,37 @@ public class UserController {
 
     /**
      * 회원 탈퇴
+     * <p>
+     * 숙제!!!! uri 고치기
      *
-     * 과제!!!! 특정 값만 받을 경우 경로변수로 받아줄 것
      * @Param PathVariable userId
      */
 
-    @DeleteMapping("/user/{userId}")
+    @DeleteMapping(USER_ID)
     public ResponseEntity<Object> delete(@PathVariable Long userId) {
 
-        log.info("userId = {}",userId);
-        //2.Mapper -> Service 교체된 엔티티 형식을 서비스 단으로 보내줌
+        log.info("userId = {}", userId);
+        //1.파라미터로 받은 id를 서비스로 바로 넘겨줌
         userService.delete(userId);
 
-        //3.Service 성공/실패 확인
+        //2.Service 성공/실패 확인
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     /**
      * 회원 목록 조회
-     * 과제!!!!! 수정 queryparam으로 변경
-     * @Param page, pageCount*/
+     *
+     * @Param page, pageCount
+     */
 
     @GetMapping
-    public ResponseEntity<Object> list(@RequestParam @NotNull int page, @RequestParam int pageCount) {
-        log.info("request param ={}",page);
+    public ResponseEntity<Object> list(@RequestParam int page, @RequestParam int pageCount) {
+        log.info("request param ={}", page);
 
-        //경로변수로 받은 페이지,페이지 수 -> service
+        //1. 경로변수로 받은 페이지,페이지 수 -> service
         Page<User> list = userService.list(page, pageCount);
 
-        //페이지 정보에 맞춰 가져온 users 조회
+        //2. 페이징 처리되어 가져온 정보에 맞춰 users 조회
         List<User> users = list.getContent();
 
         //service 성공/실패 확인

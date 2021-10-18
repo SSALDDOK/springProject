@@ -1,6 +1,7 @@
 package spring_project.project.user.application;
 
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -60,12 +62,13 @@ public class UserServiceDeleteTest {
     @DisplayName("회원탈퇴_실패_회원없음")
     void deleteFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        given(userRepository.findById(user.getId())).willReturn(Optional.empty())
-                .willThrow(new CustomException(EMPTY_DELETE_USER));
+        given(userRepository.findById(user.getId())).willReturn(Optional.empty());
 
         //when
+        CustomException exception = assertThrows(CustomException.class, () -> userService.delete(userId));
+
         //then
-        assertThrows(CustomException.class, () -> userService.delete(userId));
+        assertThat(exception.getErrorCode()).isEqualTo(EMPTY_DELETE_USER);
     }
 
 

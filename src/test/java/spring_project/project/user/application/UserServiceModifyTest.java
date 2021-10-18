@@ -43,7 +43,6 @@ public class UserServiceModifyTest {
 
     static UserCommand command;
 
-
     @BeforeAll
     static void setUp() {
         //회원수정 command
@@ -61,7 +60,6 @@ public class UserServiceModifyTest {
                 .build();
     }
 
-
     @Test
     @DisplayName("회원수정_성공")
     void modifySuccessUnitTest() {
@@ -75,7 +73,7 @@ public class UserServiceModifyTest {
 
         willReturn(new ArrayList<>())
                 .given(userRepository)
-                .findOneByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
+                .findByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
 
         given(userRepository.save(any())).willReturn(expected);
 
@@ -91,8 +89,7 @@ public class UserServiceModifyTest {
     @DisplayName("회원수정_실패_회원없음")
     void modifyFailByNoExistUsersUnitTest() throws CustomException {
         //given
-        given(userRepository.findById(anyLong())).willReturn(Optional.empty())
-                .willThrow(new CustomException(EMPTY_USER));
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty());
 
         //when
         CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
@@ -122,14 +119,13 @@ public class UserServiceModifyTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(new User()));
 
         willReturn(validateUser)
-                .willThrow(new CustomException(DUPLICATE_EMAIL), new CustomException(DUPLICATE_PHONE_NUM))
                 .given(userRepository)
-                .findOneByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
+                .findByUserEmailOrUserBasicInfoPhoneNumber(anyString(), anyString());
 
         //when
         CustomException exception = assertThrows(CustomException.class, () -> userService.modify(command));
 
-        //then
+        //then // 명확하게 만들기
         assertThat(exception.getErrorCode()).isBetween(DUPLICATE_EMAIL, DUPLICATE_PHONE_NUM);
 
     }

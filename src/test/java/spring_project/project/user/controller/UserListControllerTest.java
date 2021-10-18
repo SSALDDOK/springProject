@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static spring_project.project.common.enums.UserUrl.USER_ROOT_PATH;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(UserController.class)
@@ -52,9 +53,6 @@ public class UserListControllerTest {
 
         this.objectMapper = new ObjectMapper();
 
-        this.mvc = webAppContextSetup(ctx)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
-                .build();
     }
 
     @Test
@@ -96,7 +94,7 @@ public class UserListControllerTest {
         given(userService.list(page, pageCount)).willReturn(new PageImpl<>(userList));
 
         //when
-        mvc.perform(get("/users")
+        mvc.perform(get(USER_ROOT_PATH)
                 .param("page", valueOf(page))
                 .param("pageCount", valueOf(pageCount))
                 .contentType(MediaType.APPLICATION_JSON))

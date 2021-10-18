@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 public class BaseTime {
+
     @CreatedDate
     @Column(name = "createat" ,updatable = false)
     private LocalDateTime createAt;
@@ -23,4 +24,7 @@ public class BaseTime {
     @LastModifiedDate
     @Column(name = "updateat")
     private LocalDateTime updateAt;
+
+
+
 }

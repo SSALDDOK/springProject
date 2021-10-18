@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationBasicField;
+import spring_project.project.user.controller.validation.ValidationPassword;
 
 
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
@@ -33,15 +34,15 @@ public class UserJoinReqDTO {
     @ValidationBasicField(name = emailName, regex = emailRegex)
     private String userEmail; //아이디
 
-    @ValidationBasicField(name = name, length = 5, regex = nameRegex)
+    @ValidationBasicField(name = name, regex = nameRegex)
     private String userName; //이름
 
     private String address; //주소
 
-    @ValidationBasicField(name = passwordName, length = 15, regex = passwordRegex)
+    @ValidationPassword(name = passwordName, regex = passwordRegex)
     private String password; //비밀번호
 
-    @ValidationBasicField(name = phoneName, length = 15, regex = phoneRegex)
+    @ValidationBasicField(name = phoneName, regex = phoneRegex)
     private String phoneNumber; //전화번호
 
     @ValidationGenderField(genderMaleType = GENDER_MALE, genderFemaleType = GENDER_FEMALE)

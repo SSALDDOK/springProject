@@ -16,12 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
-import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
@@ -29,14 +25,14 @@ import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static spring_project.project.common.enums.ErrorCode.*;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
+import static spring_project.project.common.enums.UserUrl.USER_ROOT_PATH;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -47,9 +43,6 @@ public class UserModifyControllerTest {
 
     @Autowired
     private MockMvc mvc;
-
-    @Autowired
-    private WebApplicationContext ctx;
 
     @MockBean
     UserService userService;
@@ -63,10 +56,6 @@ public class UserModifyControllerTest {
 
         this.objectMapper = new ObjectMapper();
         this.requestMapper = new RequestMapper();
-
-        this.mvc = webAppContextSetup(ctx)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
-                .build();
 
     }
 
@@ -107,7 +96,7 @@ public class UserModifyControllerTest {
 
         //when
         //회원수정 컨트롤러 거쳐서 저장
-        MvcResult result = mvc.perform(put("/users/user")
+         mvc.perform(put(USER_ROOT_PATH)
                 .content(modifyMapper)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -139,7 +128,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -171,7 +160,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -185,7 +174,6 @@ public class UserModifyControllerTest {
     //이름 정규식 불일치,5자 이상
     @ValueSource(strings = {"lizzy", "리지지지지"})
     @DisplayName("회원수정_이름유효성검사_실패")
-//    @CsvSource({"이메일 값을 입력해 주세요.", "이메일 값을 입력해 주세요.", "이메일 형식에 맞게 입력해 주세요."})
     void modifyControllerFailByNameValidationUnitTest(String name) throws Exception {
         //given
         UserModifyReqDTO failDto = UserModifyReqDTO.builder()
@@ -203,7 +191,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -234,7 +222,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -265,7 +253,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -297,7 +285,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -328,7 +316,7 @@ public class UserModifyControllerTest {
 
         //when
         //then
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -353,9 +341,10 @@ public class UserModifyControllerTest {
 
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        given(userService.modify(any())).willThrow(new CustomException(EMPTY_USER));
+//        given(userService.modify(any())).willThrow(new CustomException(EMPTY_USER));
+        willThrow(new CustomException(EMPTY_USER)).given(userService).modify(any());
 
-        mvc.perform(put("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -381,10 +370,10 @@ public class UserModifyControllerTest {
         //dto -> json
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        given(userService.join(any())).willThrow(new CustomException(DUPLICATE_EMAIL));
+        willThrow(new CustomException(DUPLICATE_EMAIL)).given(userService).modify(any());
 
         //when
-        mvc.perform(post("/users/user")
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -397,22 +386,23 @@ public class UserModifyControllerTest {
     @DisplayName("회원수정_컨트롤러_실패_전화번호 중복")
     void joinControllerFailByPhoneNumberDuplicationUnitTest() throws Exception {
         //given
-        UserJoinReqDTO failDto = UserJoinReqDTO.builder()
-                .userEmail("lizzy@plgrim.com")
-                .userName("리리지")
-                .password("passwor11")
-                .gender("M")
-                .address("mikuk")
-                .phoneNumber("010-8710-1086")
-                .birth("19970727")
+        UserModifyReqDTO failDto = UserModifyReqDTO.builder()
+                .id(1L)
+                .userEmail("lizy@plgrim.com")
+                .userName("이지연")
+                .password("password11")
+                .gender("F")
+                .address("incheon")
+                .phoneNumber("010-871-1086")
+                .birth("19970717")
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
 
-        given(userService.join(any())).willThrow(new CustomException(DUPLICATE_PHONE_NUM));
+        willThrow(new CustomException(DUPLICATE_PHONE_NUM)).given(userService).modify(any());
         //when
-
-        mvc.perform(post("/users/user")
+        //then
+        mvc.perform(put(USER_ROOT_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())

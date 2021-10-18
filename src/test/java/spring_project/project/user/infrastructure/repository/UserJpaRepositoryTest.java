@@ -1,8 +1,6 @@
 package spring_project.project.user.infrastructure.repository;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
@@ -19,17 +17,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserJpaRepositoryTest {
 
     @Autowired
     UserJpaRepository userRepository;
-
     User user;
     User user1;
     User user2;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         //User 정보
         user = User.builder()
                 .userEmail("ezy@plgrim.com")
@@ -69,6 +67,8 @@ class UserJpaRepositoryTest {
                         .build())
                 .birth("19970717")
                 .build();
+
+
     }
 
     @Test
@@ -79,7 +79,6 @@ class UserJpaRepositoryTest {
         User result = userRepository.save(user);
 
         //then
-        System.out.println(result);
         assertThat(result).usingRecursiveComparison()
                 .isEqualTo(user);
     }
@@ -88,9 +87,8 @@ class UserJpaRepositoryTest {
     @DisplayName("회원 이메일, 전화번호 조회")
     void findByUserEmailAndUserPhoneNumber() {
         //given
-        userRepository.save(user);
+//        userRepository.save(user);
         List<User> testUSer = new ArrayList<>();
-        testUSer.add(user);
 
         //when
         List<User> result = userRepository.findByUserEmailOrUserBasicInfoPhoneNumber(user.getUserEmail(), user.getUserBasicInfo().getPhoneNumber());
@@ -116,7 +114,7 @@ class UserJpaRepositoryTest {
 
     }
 
-     @Test
+    @Test
     @DisplayName("회원목록 삭제")
     void deleteById() {
         //given

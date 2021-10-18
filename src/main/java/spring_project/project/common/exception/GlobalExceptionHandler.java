@@ -20,17 +20,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             MethodArgumentNotValidException e, HttpHeaders headers, HttpStatus status, WebRequest request) {
         log.error("ex:{}", e.getMessage());
 
-        return handleExceptionInternal(e, ResponseEntity.status(status)
-                .body(e.getBindingResult()
-                        .getAllErrors()
-                        .get(0)
-                        .getDefaultMessage()), headers, status, request);
+        return ResponseEntity.status(status)
+                .body(ErrorResponse.builder()
+                        .status(status.value())
+                        .error(status.name())
+                        .code(status.name())
+                        .message(e.getBindingResult().getAllErrors().get(0).getDefaultMessage())
+                        .build()
+                );
+
+//        return handleExceptionInternal(e, ResponseEntity.status(status)
+//                .body(e.getBindingResult()
+//                        .getAllErrors()
+//                        .get(0)
+//                        .getDefaultMessage()), headers, status, request);
+
     }
 
     //규격맞추기
     @ExceptionHandler(value = {CustomException.class})
     protected ResponseEntity<Object> handleCustomException(CustomException e) {
         log.error("handleCustomException throw CustomException : {}", e.getErrorCode());
+
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
                 .body(ErrorResponse.builder()
                         .status(e.getErrorCode().getHttpStatus().value())

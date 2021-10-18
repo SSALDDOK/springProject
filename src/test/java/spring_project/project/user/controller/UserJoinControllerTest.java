@@ -29,9 +29,10 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
+import static spring_project.project.common.enums.UserUrl.USER_NEW;
+import static spring_project.project.common.enums.UserUrl.USER_ROOT_PATH;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(UserController.class)
@@ -57,10 +58,6 @@ class UserJoinControllerTest {
 
         this.requestMapper = new RequestMapper();
         this.objectMapper = new ObjectMapper();
-
-        this.mvc = webAppContextSetup(ctx)
-                .addFilters(new CharacterEncodingFilter("UTF-8", true))  // 필터 추가
-                .build();
 
     }
 
@@ -96,11 +93,12 @@ class UserJoinControllerTest {
 
         String testUser = objectMapper.writeValueAsString(user);
 
+        //서비스 부분 given
         given(userService.join(any())).willReturn(user);
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .content(mapper)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -112,6 +110,7 @@ class UserJoinControllerTest {
 
     /**Q
      * 필드 유효성 검사가 많을 경우 MethodSource와 ValueSource중 무엇을 쓰는게 나을까요?
+     * regex,length에 따라서 테스트코드를 써야한다.
      * */
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
     @NullAndEmptySource
@@ -135,7 +134,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -165,7 +164,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -176,8 +175,8 @@ class UserJoinControllerTest {
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
     @NullAndEmptySource
-    //15자 이상일 때,패스워드 정규식 불일치
-    @ValueSource(strings = {"asdfewdsfefe1112", "z!", "한글불가"})
+    //5자 이하, 15자 이상일 때,패스워드 정규식 불일치
+    @ValueSource(strings = {"asdfewdsfefe1112", "z1", "한글불가","aaaaaaaa","!!!!!!!"})
     @DisplayName("회원가입_비밀번호 유효성검사_실패")
     void joinControllerFailByPasswordValidationUnitTest(String password) throws Exception {
         //given
@@ -195,7 +194,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -225,7 +224,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -255,7 +254,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -285,7 +284,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -316,7 +315,7 @@ class UserJoinControllerTest {
 
         //when
         //then
-        mvc.perform(post("/users/user")
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
@@ -345,8 +344,8 @@ class UserJoinControllerTest {
         given(userService.join(any())).willThrow(new CustomException(DUPLICATE_PHONE_NUM));
 
         //when
-        //then
-        mvc.perform(post("/users/user")
+        //then _ uri 객체 만들기
+        mvc.perform(post(USER_ROOT_PATH + USER_NEW)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(testMapper))
                 .andDo(print())
