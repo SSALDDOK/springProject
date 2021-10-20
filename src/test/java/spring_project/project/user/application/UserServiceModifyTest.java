@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import spring_project.project.common.enums.Encoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
@@ -17,6 +19,7 @@ import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -32,6 +35,9 @@ import static spring_project.project.common.enums.ErrorCode.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("회원수정_서비스테스트")
 public class UserServiceModifyTest {
+
+    @Mock
+    private static PasswordEncoder encoder;
 
     @Mock
     private UserJpaRepository userRepository;
@@ -57,7 +63,9 @@ public class UserServiceModifyTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
+
     }
 
     @Test
@@ -67,6 +75,7 @@ public class UserServiceModifyTest {
         User expected = User.builder()
                 .id(1L)
                 .userEmail(modifiedEmail)
+                .password(encoder.encode("jqijfe123"))
                 .build();
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(new User()));
@@ -82,6 +91,7 @@ public class UserServiceModifyTest {
 
         //then
         assertThat(result.getId()).isEqualTo(expected.getId());
+        assertThat(result.getPassword()).isEqualTo(expected.getPassword());
         assertThat(result.getUserEmail()).isEqualTo(modifiedEmail);
     }
 

@@ -16,7 +16,6 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;

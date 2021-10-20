@@ -3,6 +3,7 @@ package spring_project.project.user.domain.model.commands;
 import lombok.*;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
+import java.util.List;
 
 
 @Getter
@@ -24,5 +25,7 @@ public class UserCommand {
     final private String gender; //성별
 
     final private String birth; //생년월일
+
+    final private List<String> roles; //권한
 
 }

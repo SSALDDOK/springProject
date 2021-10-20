@@ -115,6 +115,20 @@ class UserJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("회원 이메일 조회")
+    void findByUserEmail() {
+        //given
+        userRepository.save(user);
+
+        //when
+        Optional<User> findOneByUserEmail = userRepository.findByUserEmail(user.getUserEmail());
+
+        //then
+        assertFalse(findOneByUserEmail.isEmpty());
+        assertThat(findOneByUserEmail.get()).usingRecursiveComparison().isEqualTo(user);
+    }
+
+    @Test
     @DisplayName("회원목록 삭제")
     void deleteById() {
         //given

@@ -3,21 +3,23 @@ package spring_project.project.user.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring_project.project.auth.JwtTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static spring_project.project.common.enums.ErrorCode.*;
+import static spring_project.project.common.enums.SuccessCode.LOGIN_SUCCESS;
 
 
 @Slf4j
 @Service
-public class UserService {
+public class UserService  {
 
     /**
      * 회원가입 join
@@ -28,10 +30,46 @@ public class UserService {
 
     //JPARepository로 DB에 저장
     private final UserJpaRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder encoder;
 
-    public UserService(UserJpaRepository userRepository) {
+
+    public UserService(UserJpaRepository userRepository,JwtTokenProvider jwtTokenProvider, PasswordEncoder encoder) {
 
         this.userRepository = userRepository;
+        this.jwtTokenProvider =jwtTokenProvider;
+        this.encoder = encoder;
+    }
+
+
+    /**
+     * 로그인 확인 서비스
+     * @param command
+     * @return
+     */
+
+    public  Map<String, Object> login(UserCommand command) {
+        User user = User.builder()
+                .userEmail(command.getUserEmail())
+                .password(command.getPassword())
+                .build();
+
+        User findOne = userRepository.findByUserEmail(user.getUserEmail())
+                .orElseThrow(() -> new CustomException(EMPTY_USER));
+
+        if (!encoder.matches(user.getPassword(), findOne.getPassword())) {
+            throw new CustomException(NOT_MATCHES_PASSWORD);
+        }
+
+        String result =  jwtTokenProvider.createToken(findOne.getUsername(), findOne.getRoles());
+
+        Map<String, Object> resultMap = new HashMap<>();
+
+        resultMap.put("message",result);
+        resultMap.put("code", LOGIN_SUCCESS.getHttpStatus());
+        resultMap.put("detail",LOGIN_SUCCESS.getDetail());
+
+        return resultMap;
     }
 
     /**
@@ -45,10 +83,11 @@ public class UserService {
         User user = User.builder()
                 .userEmail(command.getUserEmail())
                 .userName(command.getUserName())
-                .password(command.getPassword())
+                .password(encoder.encode(command.getPassword()))
                 .birth(command.getBirth())
                 .gender(command.getGender())
                 .userBasicInfo(command.getUserBasicInfo())
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
 
@@ -71,7 +110,7 @@ public class UserService {
         log.info("validateUser ={}", validateUser);
 
         /**
-         * 숙제!!! - filter적용
+         * 숙제!!! - filter 적용
          * */
         //filter로 할수 있는 방법 찾기
 //        validateUser.stream().filter(u->u.getUserEmail().equals(user.getUserEmail())).findFirst()
@@ -103,8 +142,9 @@ public class UserService {
                 .userName(command.getUserName())
                 .gender(command.getGender())
                 .birth(command.getBirth())
-                .password(command.getPassword())
+                .password(encoder.encode(command.getPassword()))
                 .userBasicInfo(command.getUserBasicInfo())
+                .roles(command.getRoles())
                 .build();
 
 
@@ -177,4 +217,5 @@ public class UserService {
         //페이징 처리에 맞게 반환
         return userRepository.findAll(PageRequest.of(page, pageCount));
     }
+
 }

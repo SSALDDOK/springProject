@@ -29,7 +29,7 @@ public class UserController {
      * 회원수정 PUT("/users/user")
      * 회원탈퇴 DELETE("/users/{userId}")
      * 회원목록조회 GET ("/list")
-     * <p>
+     *
      * 숙제!!!! url이름 변경
      */
 
@@ -44,6 +44,28 @@ public class UserController {
         this.userService = userService;
         this.requestMapper = new RequestMapper();
     }
+/*
+
+    */
+/**
+     * 로그인 구현
+      * @param dto
+     * @return
+     *//*
+
+
+    @GetMapping("/login")
+    public ResponseEntity<MyUserDetail> login(@RequestBody UserLoginDTO dto) {
+        //Authentication 객체를 통해 유저 정보를 가져올 수 있다.
+        MyUserDetail user = userService.loadUserByUsername(dto.getUserEmail());
+
+        log.info("userDetails ="+   user.getAuthorities());
+
+
+          //userDetail 객체를 가져옴
+        return new ResponseEntity<>(user,HttpStatus.OK);
+    }
+*/
 
     /**
      * 회원 가입
@@ -82,7 +104,6 @@ public class UserController {
 
     /**
      * 회원 탈퇴
-     * <p>
      * 숙제!!!! uri 고치기
      *
      * @Param PathVariable userId
@@ -101,7 +122,7 @@ public class UserController {
 
     /**
      * 회원 목록 조회
-     *
+     * //0으로 들어온다는 가정.
      * @Param page, pageCount
      */
 

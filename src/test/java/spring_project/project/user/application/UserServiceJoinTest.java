@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import spring_project.project.common.enums.Encoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
@@ -34,6 +36,9 @@ public class UserServiceJoinTest {
 
     @Mock
     private UserJpaRepository userRepository;
+
+    @Mock
+    private PasswordEncoder encoder;
 
     @InjectMocks
     private UserService userService;
@@ -63,19 +68,22 @@ public class UserServiceJoinTest {
         final User user = User.builder()
                 .userEmail("lizzy@plgrim.com")
                 .userName("lizzy")
-                .password("jqijfe123")
+                .password(encoder.encode("jqijfe123"))
                 .gender("F")
                 .userBasicInfo(UserBasicInfo.builder()
                         .address("incheon")
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
         given(userRepository.save(any())).willReturn(user);
 
         //when
         User result = userService.join(command);
+        System.out.println(result);
+        System.out.println(user);
 
         //then
         assertThat(result).usingRecursiveComparison()

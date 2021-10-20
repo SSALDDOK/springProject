@@ -1,6 +1,7 @@
 package spring_project.project.user.controller.dto.mapper;
 
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
+import spring_project.project.user.controller.dto.UserLoginDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
@@ -35,6 +36,14 @@ public class RequestMapper {
                 .gender(dto.getGender())
                 .birth(dto.getBirth())
                 .userBasicInfo(userBasicInfo)
+                .roles(dto.getRoles())
+                .build();
+    }
+
+    public UserCommand toCommand(UserLoginDTO dto){
+        return UserCommand.builder()
+                .userEmail(dto.getUserEmail())
+                .password(dto.getPassword())
                 .build();
     }
 

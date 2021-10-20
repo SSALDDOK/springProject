@@ -10,6 +10,9 @@ import spring_project.project.user.controller.validation.ValidationPassword;
 
 import javax.validation.constraints.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
 import static spring_project.project.common.enums.Gender.GENDER_MALE;
 import static spring_project.project.common.enums.ValidateRegex.*;
@@ -52,5 +55,7 @@ public class UserModifyReqDTO {
 
     @ValidationBasicField(name = birthName, regex = birthRegex)
     private String birth; //생년월일
+
+    private  List<String> roles;
 
 }

@@ -16,7 +16,8 @@ public enum ErrorCode {
     DUPLICATE_USER(CONFLICT, "이미 존재 회원입니다."),
     // 500에러로 고치기
     EMPTY_USER(BAD_REQUEST, "존재하지 않는 회원입니다."),
-    EMPTY_DELETE_USER(BAD_REQUEST, "삭제할 회원이 없습니다.");
+    EMPTY_DELETE_USER(BAD_REQUEST, "삭제할 회원이 없습니다."),
+    NOT_MATCHES_PASSWORD(BAD_REQUEST, "잘못된 비밀번호 입니다.");
 
     private final HttpStatus httpStatus;
     private final String detail;
