@@ -7,11 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
-import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
 import java.util.List;

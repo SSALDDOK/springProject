@@ -12,9 +12,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.filter.CharacterEncodingFilter;
+import spring_project.project.common.auth.provider.JwtTokenProvider;
+import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
@@ -28,7 +30,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static spring_project.project.common.enums.UserUrl.USER_ROOT_PATH;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,13 +41,19 @@ public class UserListControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private WebApplicationContext ctx;
-
     @MockBean
     UserService userService;
 
     ObjectMapper objectMapper;
+
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    SnsTokenProvider snsTokenProvider;
+
+    @MockBean
+    UserDetailsService userDetailsService;
 
     @BeforeEach
     void setUp() {
@@ -56,7 +63,8 @@ public class UserListControllerTest {
     }
 
     @Test
-    @DisplayName("회원목록조회_성공")
+    @WithMockUser(value = "USER")
+    @DisplayName("회원목록조회_컨트롤러_성공")
     void findUsersListControllerSuccessUnitTest() throws Exception {
         //given
         int page = 0;
@@ -101,6 +109,25 @@ public class UserListControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().string(userListToString))
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("회원목록조회_컨트롤러_실패_권한없음")
+    void findUsersListControllerFailByUnauthorizedUnitTest() throws Exception {
+        //given
+        int page = 0;
+        int pageCount = 2;
+
+        //when
+        //then
+        mvc.perform(get(USER_ROOT_PATH)
+                .param("page", valueOf(page))
+                .param("pageCount", valueOf(pageCount))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andDo(print())
                 .andReturn();
 
     }

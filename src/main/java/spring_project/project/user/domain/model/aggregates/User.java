@@ -44,6 +44,7 @@ public class User extends BaseTime implements UserDetails {
     @Column(name = "birth")
     private String birth; //생년월일
 
+    //참고부분..? (엔티티부분으로 걷어내봐야한다.. 쪼개는연습을해야한다. (DB분리))
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private final List<String> roles = new ArrayList<>();

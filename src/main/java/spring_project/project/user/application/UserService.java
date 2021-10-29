@@ -3,23 +3,30 @@ package spring_project.project.user.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring_project.project.auth.JwtTokenProvider;
+import spring_project.project.common.auth.provider.JwtTokenProvider;
+import spring_project.project.common.auth.provider.SnsTokenProvider;
+import spring_project.project.common.enums.SnsType;
 import spring_project.project.common.exception.CustomException;
+import spring_project.project.user.controller.dto.OauthToken;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.service.Strategy;
+import spring_project.project.user.domain.service.StrategyFactory;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static spring_project.project.common.enums.ErrorCode.*;
-import static spring_project.project.common.enums.SuccessCode.LOGIN_SUCCESS;
 
 
 @Slf4j
 @Service
-public class UserService  {
+public class UserService {
 
     /**
      * 회원가입 join
@@ -31,45 +38,70 @@ public class UserService  {
     //JPARepository로 DB에 저장
     private final UserJpaRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final SnsTokenProvider snsTokenProvider;
     private final PasswordEncoder encoder;
+    private final StrategyFactory strategyFactory;
 
 
-    public UserService(UserJpaRepository userRepository,JwtTokenProvider jwtTokenProvider, PasswordEncoder encoder) {
+    public UserService(UserJpaRepository userRepository, JwtTokenProvider jwtTokenProvider, PasswordEncoder encoder
+            , SnsTokenProvider snsTokenProvider, StrategyFactory strategyFactory) {
 
         this.userRepository = userRepository;
-        this.jwtTokenProvider =jwtTokenProvider;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.encoder = encoder;
+        this.snsTokenProvider = snsTokenProvider;
+        this.strategyFactory = strategyFactory;
     }
 
 
     /**
      * 로그인 확인 서비스
+     *
      * @param command
      * @return
      */
 
-    public  Map<String, Object> login(UserCommand command) {
+    public String localLogin(UserCommand command) {
         User user = User.builder()
                 .userEmail(command.getUserEmail())
                 .password(command.getPassword())
                 .build();
 
         User findOne = userRepository.findByUserEmail(user.getUserEmail())
-                .orElseThrow(() -> new CustomException(EMPTY_USER));
+                .orElseThrow(() -> new CustomException(EMPTY_USER_EMAIL));
 
         if (!encoder.matches(user.getPassword(), findOne.getPassword())) {
             throw new CustomException(NOT_MATCHES_PASSWORD);
         }
 
-        String result =  jwtTokenProvider.createToken(findOne.getUsername(), findOne.getRoles());
+        return jwtTokenProvider.createToken(findOne.getUsername(), findOne.getRoles());
 
-        Map<String, Object> resultMap = new HashMap<>();
+    }
 
-        resultMap.put("message",result);
-        resultMap.put("code", LOGIN_SUCCESS.getHttpStatus());
-        resultMap.put("detail",LOGIN_SUCCESS.getDetail());
+    public Strategy snsLogin(String snsType) {
+        SnsType snsTypeName = SnsType.valueOf(snsType.toUpperCase());
 
-        return resultMap;
+        return strategyFactory.findStrategy(snsTypeName);
+
+    }
+
+    public ResponseEntity<OauthToken> oauthLogin(String snsType, String code) throws Exception {
+        //토큰만들기
+//        ResponseEntity<OauthToken> accessTokenResponse = oauthService.requestAccessToken(code);
+//        snsTokenProvider.createToken(code);
+
+        //만들어진 토큰 가져오기
+//        OauthToken oauthToken = oauthService.getAccessToken(accessTokenResponse);
+
+        /*//만들어진 토큰을 이용해서 유저 조회하기
+        ResponseEntity<String> userInfoResponse = oauthService.createGetRequest(oauthToken);
+
+        GoogleUser googleUser = oauthService.getUserInfo(userInfoResponse);
+
+        User findOne = userRepository.findByUserEmail(googleUser.getUserEmail())
+                .orElseThrow(() -> new CustomException(EMPTY_USER_EMAIL));*/
+
+        return snsTokenProvider.createToken(snsType, code);
     }
 
     /**

@@ -14,8 +14,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
+import spring_project.project.common.auth.provider.JwtTokenProvider;
+import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
@@ -23,11 +25,14 @@ import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
+import java.util.Collections;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 import static spring_project.project.common.enums.UserUrl.USER_NEW;
@@ -42,11 +47,17 @@ class UserJoinControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    private WebApplicationContext ctx;
-
     @MockBean
     UserService userService;
+
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    SnsTokenProvider snsTokenProvider;
+
+    @MockBean
+    UserDetailsService userDetailsService;
 
     private ObjectMapper objectMapper;
 
@@ -85,6 +96,7 @@ class UserJoinControllerTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
+                .roles(Collections.singletonList("ROLE_USER"))
                 .build();
 
         //dto -> json
@@ -107,10 +119,6 @@ class UserJoinControllerTest {
 
     }
 
-    /**Q
-     * 필드 유효성 검사가 많을 경우 MethodSource와 ValueSource중 무엇을 쓰는게 나을까요?
-     * regex,length에 따라서 테스트코드를 써야한다.
-     * */
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
     @NullAndEmptySource
     //이메일 정규식 불일치

@@ -1,6 +1,8 @@
 package spring_project.project.user.infrastructure.repository;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
@@ -14,7 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 //@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -22,6 +25,7 @@ class UserJpaRepositoryTest {
 
     @Autowired
     UserJpaRepository userRepository;
+
     User user;
     User user1;
     User user2;

@@ -2,30 +2,35 @@ package spring_project.project.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring_project.project.user.application.UserService;
+import spring_project.project.user.controller.dto.OauthToken;
 import spring_project.project.user.controller.dto.UserLoginDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.service.Strategy;
+import spring_project.project.user.domain.service.StrategyFactory;
 
-import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import static spring_project.project.common.enums.UserUrl.*;
 
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping(LOGIN_ROOT_PATH)
 @Slf4j
 public class UserLoginController {
 
     //받아온 값을 기능적으로 구현할수 있는 서비스 단으로 넘기기 위해서 사용
-    private final UserService userSevice;
+    private final UserService userService;
     private final RequestMapper mapper;
 
     @Autowired
-    public UserLoginController(UserService userSevice) {
+    public UserLoginController(UserService userService, StrategyFactory strategyFactory) {
 
-        this.userSevice = userSevice;
+        this.userService = userService;
         this.mapper = new RequestMapper();
     }
 
@@ -36,17 +41,39 @@ public class UserLoginController {
      * @return
      */
 
-// 로그인
+    // 로컬 로그인시 아이디와 패스워드를 사용해서 command와 매핑시킨후 서비스로 보낸다.
     @PostMapping
-    public ResponseEntity<Map<String, Object>> login(@RequestBody UserLoginDTO dto) {
+    public String login(@RequestBody UserLoginDTO dto) {
 
-        //로그인시 아이디와 패스워드를 사용해서 command와 매핑시킨다
         UserCommand userCommand = mapper.toCommand(dto);
 
-        //매핑시킨 userCommand를 로그인 서비스 로직 매개변수로 보낸다.
-        Map<String, Object> result = userSevice.login(userCommand);
+        return userService.localLogin(userCommand);
+    }
 
-        //성공시 200과 서비스에서 반환 받은 값을 보여준다.
-        return new ResponseEntity<>(result, HttpStatus.OK);
+    /**
+     * 구글 로그인 페이지
+     *
+     * @return
+     */
+    @GetMapping(LOGIN_SNS_PATH)
+    public void googleLogin(HttpServletResponse response, @PathVariable String snsType) throws IOException {
+
+        Strategy strategy = userService.snsLogin(snsType);
+
+        response.sendRedirect(strategy.sendUrlQuery().toUriString());
+    }
+
+    /**
+     * Social Login API Server 요청에 의한 callback 을 처리
+     *
+     * @param code API Server 로부터 넘어노는 code
+     * @return SNS Login 요청 결과로 받은 Json 형태의 String 문자열 (access_token, refresh_token 등)
+     */
+    @GetMapping(LOGIN_SNS_CALLBACK_PATH)
+    public ResponseEntity<OauthToken> googleLoginCallback(@PathVariable String snsType , @RequestParam String code) throws Exception {
+//        log.info(">> 소셜 로그인 API 서버로부터 받은 code :: {}", code);
+        return userService.oauthLogin(snsType,code);
+//        return new ResponseEntity<>(new OauthTokenResponseDTO(token, "bearer"), HttpStatus.OK);
+
     }
 }

@@ -11,11 +11,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import spring_project.project.common.auth.provider.JwtTokenProvider;
+import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,6 +42,15 @@ public class UserDeleteControllerTest {
 
     static ObjectMapper objectMapper;
 
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    SnsTokenProvider snsTokenProvider;
+
+    @MockBean
+    UserDetailsService userDetailsService;
+
     @BeforeAll
     static void setUp() {
 
@@ -46,17 +60,18 @@ public class UserDeleteControllerTest {
 
     //리턴되는 값들에 대해 모든 테스트
     @Test
-    @DisplayName("회원탈퇴_성공")
+    @WithMockUser(value = "USER")
+    @DisplayName("회원탈퇴_컨트롤러_성공")
     void deleteControllerSuccessUnitTest() throws Exception {
         //given
-        Long deleteId =1L;
+        Long deleteId = 1L;
 
         willDoNothing().given(userService).delete(deleteId);
 
         //when
         //then
-        mvc.perform(delete(USER_ROOT_PATH+USER_ID,deleteId)
-        .contentType(MediaType.APPLICATION_JSON)) //content 타입 컨트롤러 반환값
+        mvc.perform(delete(USER_ROOT_PATH + USER_ID, deleteId)
+                .contentType(MediaType.APPLICATION_JSON)) //content 타입 컨트롤러 반환값
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
@@ -64,17 +79,34 @@ public class UserDeleteControllerTest {
     }
 
     @Test
-    @DisplayName("회원탈퇴_실패(회원없음)")
-    void deleteControllerFailByEmptyUser() throws Exception{
+    @WithMockUser(value = "USER")
+    @DisplayName("회원탈퇴_컨트롤러_실패_회원없음")
+    void deleteControllerFailByEmptyUser() throws Exception {
         //given
         Long deleteId = 1L;
 
         willThrow(new CustomException(EMPTY_DELETE_USER)).given(userService).delete(deleteId);
 
-        mvc.perform(delete(USER_ROOT_PATH+USER_ID,deleteId)
-        .contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete(USER_ROOT_PATH + USER_ID, deleteId)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is(EMPTY_DELETE_USER.getHttpStatus().value()))
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("회원탈퇴_컨트롤러_실패_권한없음")
+    void joinControllerFailByUnauthorizedUnitTest() throws Exception {
+        //given
+        Long deleteId = 1L;
+
+        //when
+        //then
+        mvc.perform(delete(USER_ROOT_PATH + USER_ID, deleteId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isUnauthorized())
                 .andReturn();
 
     }

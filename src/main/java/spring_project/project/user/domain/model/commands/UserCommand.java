@@ -1,6 +1,8 @@
 package spring_project.project.user.domain.model.commands;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import java.util.List;

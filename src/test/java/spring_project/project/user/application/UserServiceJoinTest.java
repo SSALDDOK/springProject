@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import spring_project.project.common.enums.Encoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
@@ -18,7 +17,9 @@ import spring_project.project.user.domain.model.commands.UserCommand;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,7 +39,7 @@ public class UserServiceJoinTest {
     private UserJpaRepository userRepository;
 
     @Mock
-    private PasswordEncoder encoder;
+    private Encoder encoder;
 
     @InjectMocks
     private UserService userService;

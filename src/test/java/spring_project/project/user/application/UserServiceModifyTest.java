@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import spring_project.project.common.enums.Encoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
@@ -25,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;

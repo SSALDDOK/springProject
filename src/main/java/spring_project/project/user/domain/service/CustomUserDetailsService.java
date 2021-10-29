@@ -9,7 +9,7 @@ import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 
 
-//Domain service (순환 유무)
+//Domain service (순환 유무) -> 빼기
 @Slf4j
 @Service
 public class CustomUserDetailsService implements UserDetailsService {

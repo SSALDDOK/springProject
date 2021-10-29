@@ -15,7 +15,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import spring_project.project.common.auth.provider.JwtTokenProvider;
+import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
@@ -31,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static spring_project.project.common.enums.ErrorCode.*;
-import static spring_project.project.common.enums.ErrorCode.DUPLICATE_PHONE_NUM;
 import static spring_project.project.common.enums.UserUrl.USER_ROOT_PATH;
 
 
@@ -51,6 +54,15 @@ public class UserModifyControllerTest {
 
     RequestMapper requestMapper;
 
+    @MockBean
+    JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    SnsTokenProvider snsTokenProvider;
+
+    @MockBean
+    UserDetailsService userDetailsService;
+
     @BeforeEach
     public void setup() {
 
@@ -60,6 +72,7 @@ public class UserModifyControllerTest {
     }
 
     @Test
+    @WithMockUser(value = "USER")
     @DisplayName("회원수정_컨트롤러_성공")
     void modifyControllerSuccessUnitTest() throws Exception {
 
@@ -107,6 +120,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullSource
     //이메일 정규식 불일치
     @DisplayName("회원수정_아이디유효성검사_실패")
@@ -138,6 +152,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //이메일 정규식 불일치
     @ValueSource(strings = {"lizzyplgrim"})
@@ -170,6 +185,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //이름 정규식 불일치,5자 이상
     @ValueSource(strings = {"lizzy", "리지지지지"})
@@ -201,6 +217,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //15자 이상일 때,패스워드 정규식 불일치
     @ValueSource(strings = {"asdfewdsfefe1112", "z!", "한글불가"})
@@ -232,6 +249,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //15자 이상일 때,전화번호 정규식 불일치
     @ValueSource(strings = {"010-87777-77777", "asdfew", "한글불가"})
@@ -264,6 +282,7 @@ public class UserModifyControllerTest {
 
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //성별 "F,M"값이 아닐 때
     @ValueSource(strings = {"Female"})
@@ -295,6 +314,7 @@ public class UserModifyControllerTest {
     }
 
     @ParameterizedTest(name = "{index} {arguments} {displayName} ")
+    @WithMockUser(value = "USER")
     @NullAndEmptySource
     //9자 이상일 때,생년월일 정규식 불일치
     @ValueSource(strings = {"199707177", "970717"})
@@ -326,6 +346,7 @@ public class UserModifyControllerTest {
     }
 
     @Test
+    @WithMockUser(value = "USER")
     @DisplayName("회원수정_실패_회원없음")
     void modifyControllerFailByNoExistUsersUnitTest() throws Exception {
         UserModifyReqDTO failDto = UserModifyReqDTO.builder()
@@ -353,6 +374,7 @@ public class UserModifyControllerTest {
     }
 
     @Test
+    @WithMockUser(value = "USER")
     @DisplayName("회원수정_컨트롤러_실패_이메일중복")
     void joinControllerFailByEmailDuplicationUnitTest() throws Exception {
         //given
@@ -383,6 +405,7 @@ public class UserModifyControllerTest {
     }
 
     @Test
+    @WithMockUser(value = "USER")
     @DisplayName("회원수정_컨트롤러_실패_전화번호 중복")
     void joinControllerFailByPhoneNumberDuplicationUnitTest() throws Exception {
         //given
@@ -407,6 +430,34 @@ public class UserModifyControllerTest {
                 .content(testMapper))
                 .andDo(print())
                 .andExpect(status().is(DUPLICATE_PHONE_NUM.getHttpStatus().value()))
+                .andReturn();
+
+    }
+
+    @Test
+    @DisplayName("회원수정_컨트롤러_실패_권한없음")
+    void joinControllerFailByUnauthorizedUnitTest() throws Exception {
+        //given
+        UserModifyReqDTO failDto = UserModifyReqDTO.builder()
+                .id(1L)
+                .userEmail("lizy@plgrim.com")
+                .userName("이지연")
+                .password("password11")
+                .gender("F")
+                .address("incheon")
+                .phoneNumber("010-871-1086")
+                .birth("19970717")
+                .build();
+
+        String testMapper = objectMapper.writeValueAsString(failDto);
+
+        //when
+        //then
+        mvc.perform(put(USER_ROOT_PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(testMapper))
+                .andDo(print())
+                .andExpect(status().is(NOT_UNAUTHORIZED.getHttpStatus().value()))
                 .andReturn();
 
     }

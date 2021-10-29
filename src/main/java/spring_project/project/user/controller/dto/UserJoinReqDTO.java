@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationBasicField;
+import spring_project.project.user.controller.validation.ValidationGenderField;
 import spring_project.project.user.controller.validation.ValidationPassword;
-
 
 import static spring_project.project.common.enums.Gender.GENDER_FEMALE;
 import static spring_project.project.common.enums.Gender.GENDER_MALE;
