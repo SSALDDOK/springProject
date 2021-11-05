@@ -44,28 +44,6 @@ public class UserController {
         this.userService = userService;
         this.requestMapper = new RequestMapper();
     }
-/*
-
-    */
-/**
-     * 로그인 구현
-      * @param dto
-     * @return
-     *//*
-
-
-    @GetMapping("/login")
-    public ResponseEntity<MyUserDetail> login(@RequestBody UserLoginDTO dto) {
-        //Authentication 객체를 통해 유저 정보를 가져올 수 있다.
-        MyUserDetail user = userService.loadUserByUsername(dto.getUserEmail());
-
-        log.info("userDetails ="+   user.getAuthorities());
-
-
-          //userDetail 객체를 가져옴
-        return new ResponseEntity<>(user,HttpStatus.OK);
-    }
-*/
 
     /**
      * 회원 가입

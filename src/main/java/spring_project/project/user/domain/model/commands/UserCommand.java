@@ -3,6 +3,7 @@ package spring_project.project.user.domain.model.commands;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import java.util.List;
@@ -28,6 +29,6 @@ public class UserCommand {
 
     final private String birth; //생년월일
 
-    final private List<String> roles; //권한
+    final private List<UserRole> roles; //권한
 
 }

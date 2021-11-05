@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
@@ -62,7 +63,9 @@ public class UserServiceModifyTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
 
     }

@@ -3,20 +3,18 @@ package spring_project.project.user.application;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.enums.SnsType;
 import spring_project.project.common.exception.CustomException;
-import spring_project.project.user.controller.dto.OauthToken;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
-import spring_project.project.user.domain.service.Strategy;
-import spring_project.project.user.domain.service.StrategyFactory;
+import spring_project.project.user.domain.model.entities.UserRole;
+import spring_project.project.user.domain.service.SnsLoginService;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,19 +36,17 @@ public class UserService {
     //JPARepository로 DB에 저장
     private final UserJpaRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final SnsTokenProvider snsTokenProvider;
+    private final SnsLoginService snsLoginService;
     private final PasswordEncoder encoder;
-    private final StrategyFactory strategyFactory;
 
 
     public UserService(UserJpaRepository userRepository, JwtTokenProvider jwtTokenProvider, PasswordEncoder encoder
-            , SnsTokenProvider snsTokenProvider, StrategyFactory strategyFactory) {
+            ,SnsLoginService snsLoginService) {
 
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
         this.encoder = encoder;
-        this.snsTokenProvider = snsTokenProvider;
-        this.strategyFactory = strategyFactory;
+        this.snsLoginService = snsLoginService;
     }
 
 
@@ -74,34 +70,43 @@ public class UserService {
             throw new CustomException(NOT_MATCHES_PASSWORD);
         }
 
-        return jwtTokenProvider.createToken(findOne.getUsername(), findOne.getRoles());
+//        return jwtTokenProvider.createToken(findOne.getUserEmail(), findOne.getRoles());
+        return jwtTokenProvider.createToken(findOne.getUserEmail(), findOne.getRoles());
 
     }
 
-    public Strategy snsLogin(String snsType) {
+    /**
+     * sns 로그인 페이지 연결 서비스
+     * @param snsType
+     * @return
+     */
+
+    public void snsLogin(String snsType) throws IOException {
+
         SnsType snsTypeName = SnsType.valueOf(snsType.toUpperCase());
 
-        return strategyFactory.findStrategy(snsTypeName);
+        snsLoginService.findSnsRedirectUrl(snsTypeName);
 
     }
 
-    public ResponseEntity<OauthToken> oauthLogin(String snsType, String code) throws Exception {
-        //토큰만들기
-//        ResponseEntity<OauthToken> accessTokenResponse = oauthService.requestAccessToken(code);
-//        snsTokenProvider.createToken(code);
+    /**
+     * sns 로그인 확인 서비스
+     *
+     */
 
-        //만들어진 토큰 가져오기
-//        OauthToken oauthToken = oauthService.getAccessToken(accessTokenResponse);
+    public String snsOauthLogin(String snsType, String code) throws Exception {
+        String oauthAccessToken =  snsLoginService.createPostToken(snsType,code);
+        String snsUserEmail = snsLoginService.createGetRequest(snsType, oauthAccessToken);
 
-        /*//만들어진 토큰을 이용해서 유저 조회하기
-        ResponseEntity<String> userInfoResponse = oauthService.createGetRequest(oauthToken);
+        User user = User.builder()
+                .userEmail(snsUserEmail)
+                .build();
 
-        GoogleUser googleUser = oauthService.getUserInfo(userInfoResponse);
+        User findOne = userRepository.findByUserEmail(user.getUserEmail())
+                .orElseThrow(() -> new CustomException(EMPTY_USER_EMAIL));
 
-        User findOne = userRepository.findByUserEmail(googleUser.getUserEmail())
-                .orElseThrow(() -> new CustomException(EMPTY_USER_EMAIL));*/
+        return jwtTokenProvider.createToken(findOne.getUserEmail(),findOne.getRoles());
 
-        return snsTokenProvider.createToken(snsType, code);
     }
 
     /**
@@ -111,6 +116,10 @@ public class UserService {
      */
     public User join(UserCommand command) {
 
+        UserRole userRole = UserRole.builder()
+                .authority("ROLE_USER")
+                .build();
+
         //매핑된 command를 엔티티로 매핑
         User user = User.builder()
                 .userEmail(command.getUserEmail())
@@ -119,7 +128,7 @@ public class UserService {
                 .birth(command.getBirth())
                 .gender(command.getGender())
                 .userBasicInfo(command.getUserBasicInfo())
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(userRole))
                 .build();
 
 

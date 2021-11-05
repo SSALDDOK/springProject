@@ -1,23 +1,22 @@
 package spring_project.project.user.infrastructure.rest;
 
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import spring_project.project.common.enums.SnsType;
+import spring_project.project.user.controller.dto.GoogleUser;
 import spring_project.project.user.controller.dto.OauthToken;
 import spring_project.project.user.domain.service.Strategy;
 
+import java.util.Objects;
+
 
 @Component
-@RequiredArgsConstructor
+@Slf4j
 public class Google implements Strategy {
 
     @Value("${sns.google.client.id}")
@@ -35,23 +34,25 @@ public class Google implements Strategy {
     @Value("${sns.google.token.base.url}")
     public String GOOGLE_SNS_TOKEN_BASE_URL;
 
+    @Value("${sns.google.userinfo.url}")
+    public String GOOGLE_SNS_USERINFO_URL;
+
     @Override
-    public UriComponentsBuilder sendUrlQuery() {
+    public String sendUrlQuery() {
         MultiValueMap<String, String> query = new LinkedMultiValueMap<>() {{
-            add("scope", "profile");
+            add("scope", "email profile");
             add("response_type", "code");
             add("access_type", "offline");
             add("client_id", GOOGLE_SNS_CLIENT_ID);
             add("redirect_uri", GOOGLE_SNS_CALLBACK_URL);
         }};
 
-        return UriComponentsBuilder.fromHttpUrl(GOOGLE_SNS_BASE_URL).queryParams(query);
+        return UriComponentsBuilder.fromHttpUrl(GOOGLE_SNS_BASE_URL).queryParams(query).toUriString();
 
     }
 
     @Override
-    public ResponseEntity<OauthToken> sendCallbackUrlCode(String code) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
+    public String sendCallbackUrlCode(String code) throws Exception {
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", code);
@@ -60,17 +61,43 @@ public class Google implements Strategy {
         params.add("redirect_uri", GOOGLE_SNS_CALLBACK_URL);
         params.add("grant_type", "authorization_code");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        OauthToken response = WebClient.create(GOOGLE_SNS_TOKEN_BASE_URL)
+                .post()
+                .uri(uriBuilder -> uriBuilder.queryParams(params).build())
+                .retrieve()
+                .bodyToFlux(OauthToken.class)
+                .blockFirst();
 
-        HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(params, headers);
+        //requireNonNull은 해당 참조가 null일 경우 즉시 개발자에게 알리는 것
+       return Objects.requireNonNull(response).getAccess_token();
 
-        return restTemplate.exchange(GOOGLE_SNS_TOKEN_BASE_URL, HttpMethod.POST, httpEntity, OauthToken.class);
+//        return ResponseEntity.ok(response);
+    }
 
+
+    public String createGetRequest(String oauthAccessToken) {
+
+//        String getOauthToken = Objects.requireNonNull(oauthToken.getBody()).getAccess_token();
+//        headers.add("Authorization", "Bearer " + getOauthToken);
+//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+
+        GoogleUser response = WebClient.create(GOOGLE_SNS_USERINFO_URL)
+                .get()
+                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer " + oauthAccessToken))
+                .retrieve()
+                .bodyToFlux(GoogleUser.class)
+                .blockFirst();
+
+//        ResponseEntity<GoogleUser> result = restTemplate.exchange(GOOGLE_SNS_USERINFO_URL, HttpMethod.GET, request, GoogleUser.class);
+//        log.info("google response User result = {}",result);
+
+        return Objects.requireNonNull(response).getEmail();
     }
 
     @Override
     public SnsType getSnsType() {
+
         return SnsType.GOOGLE;
+
     }
 }

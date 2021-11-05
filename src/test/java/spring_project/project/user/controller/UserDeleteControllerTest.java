@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 
@@ -44,9 +43,6 @@ public class UserDeleteControllerTest {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
-    SnsTokenProvider snsTokenProvider;
 
     @MockBean
     UserDetailsService userDetailsService;

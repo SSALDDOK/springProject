@@ -10,10 +10,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import spring_project.project.common.enums.Encoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
@@ -39,7 +40,7 @@ public class UserServiceJoinTest {
     private UserJpaRepository userRepository;
 
     @Mock
-    private Encoder encoder;
+    private PasswordEncoder encoder;
 
     @InjectMocks
     private UserService userService;
@@ -76,7 +77,9 @@ public class UserServiceJoinTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
 
         given(userRepository.save(any())).willReturn(user);

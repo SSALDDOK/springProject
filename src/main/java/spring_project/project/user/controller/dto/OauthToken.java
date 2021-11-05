@@ -1,12 +1,14 @@
 package spring_project.project.user.controller.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-@ToString
 public class OauthToken {
 
     private String access_token;

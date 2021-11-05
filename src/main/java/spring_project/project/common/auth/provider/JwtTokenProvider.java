@@ -4,11 +4,13 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import spring_project.project.user.domain.model.entities.UserRole;
+import spring_project.project.user.domain.service.CustomUserDetailsService;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -19,11 +21,12 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {//jwt토큰 생성 및 유효성을 검증하는 컴포넌트
 
-    private String SECRET_KEY = "LIZZY";
+    @Value("${jwt.secret.key}")
+    private String SECRET_KEY;
 
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
-    public JwtTokenProvider(UserDetailsService userDetailsService) {
+    public JwtTokenProvider(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -33,8 +36,7 @@ public class JwtTokenProvider {//jwt토큰 생성 및 유효성을 검증하는 
     }
 
     // Jwt 토큰 생성
-
-    public String createToken(String userPk, List<String> roles) {
+    public String createToken(String userPk, List<UserRole> roles) {
         Claims claims = Jwts.claims().setSubject(userPk);
         claims.put("roles", roles);
         Date now = new Date();
@@ -42,7 +44,7 @@ public class JwtTokenProvider {//jwt토큰 생성 및 유효성을 검증하는 
         long tokenValid = 60 * 60 * 1000L;
 
         return Jwts.builder()
-                .setClaims(claims) // 데이터
+                .setClaims(claims) // 데이터(ROLE_USER)
                 .setIssuedAt(now) // 토큰 발행일자
                 .setExpiration(new Date(now.getTime() + tokenValid)) // set Expire Time
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY) // 암호화 알고리즘, secret값 세팅
@@ -51,7 +53,8 @@ public class JwtTokenProvider {//jwt토큰 생성 및 유효성을 검증하는 
 
     // 토큰에서 회원 정보 추출
     public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser().setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     // 토큰에서 인증 정보 조회
@@ -60,16 +63,11 @@ public class JwtTokenProvider {//jwt토큰 생성 및 유효성을 검증하는 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-
     /**
      * Request의 Header에서 token 파싱 : "X-AUTH-TOKEN: jwt토큰"
      * */
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("X-AUTH-TOKEN");
-    }
-
-    public String resolveType(HttpServletRequest request) {
-        return request.getHeader("SNS-TYPE");
     }
 
     /**

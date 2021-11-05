@@ -7,12 +7,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
-import spring_project.project.common.enums.Encoder;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.domain.model.aggregates.User;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.service.SnsLoginService;
 import spring_project.project.user.infrastructure.repository.UserJpaRepository;
 
 import java.util.Optional;
@@ -20,9 +20,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.*;
 import static spring_project.project.common.enums.ErrorCode.EMPTY_USER_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.NOT_MATCHES_PASSWORD;
+import static spring_project.project.common.enums.SnsType.GOOGLE;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("로그인_서비스테스트")
@@ -35,10 +36,10 @@ public class UserServiceLoginTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @Mock
-    private SnsTokenProvider snsTokenProvider;
+    private PasswordEncoder encoder;
 
     @Mock
-    private Encoder encoder;
+    private SnsLoginService snsLoginService;
 
     @InjectMocks
     private UserService userService;
@@ -69,13 +70,13 @@ public class UserServiceLoginTest {
 
         given(encoder.matches(any(), any())).willReturn(true);
 
-        given(jwtTokenProvider.createToken(any(), any())).willReturn("jwt");
+        given(jwtTokenProvider.createToken(any(), any())).willReturn("token");
 
         //when
-         String result = userService.localLogin(command);
+        String result = userService.localLogin(command);
 
         //then
-        assertThat(result).isEqualTo("jwt");
+        assertThat(result).isEqualTo("token");
     }
 
     @Test
@@ -97,7 +98,7 @@ public class UserServiceLoginTest {
         //given
         given(userRepository.findByUserEmail(any())).willReturn(Optional.of(new User()));
 
-        given(encoder.matches(any(),any())).willReturn(false);
+        given(encoder.matches(any(), any())).willReturn(false);
 
         //when
         CustomException customException = assertThrows(CustomException.class, () -> userService.localLogin(command));
@@ -106,44 +107,60 @@ public class UserServiceLoginTest {
         assertThat(customException.getErrorCode()).isEqualTo(NOT_MATCHES_PASSWORD);
     }
 
-//    @Test
-//    @DisplayName("SNS 로그인 성공")
-//    void snsLoginSuccessUnitTest() throws Exception{
-//        //given
-//        String code = "test_code";
-//        String token = "test_token";
-//
-//        OauthToken oauthToken = OauthToken.builder()
-//                .access_token(token)
-//                .build();
-//
-//        given(snsTokenProvider.createToken(any())).willReturn(ResponseEntity.ok(oauthToken));
-//
-//        //when
-//        ResponseEntity<OauthToken> result = userService.oauthLogin(code);
-//
-//        //then
-//        assertThat(result).isEqualTo(ResponseEntity.ok(oauthToken));
-//    }
+    @Test
+    @DisplayName("SNS 로그인 페이지 성공")
+    void snsLoginPageSuccessUnitTest() throws Exception {
+        //given
+        willDoNothing().given(snsLoginService).findSnsRedirectUrl(any());
 
-//    @Test
-//    @DisplayName("SNS 로그인 실패_토큰이 없음")
-//    void snsLoginFailByTokenUnitTest() throws Exception{
-//        //given
-//        String code = "test_code";
-//        String token = "test_token";
-//
-//        OauthToken oauthToken = OauthToken.builder()
-//                .access_token(token)
-//                .build();
-//
-//        given(snsTokenProvider.createToken(any())).willReturn();
-//
-//        //when
-//        ResponseEntity<OauthToken> result = userService.oauthLogin(code);
-//
-//        //then
-//        assertThat(result).isEqualTo(ResponseEntity.ok(oauthToken));
-//    }
+        //when
+        userService.snsLogin("google");
+
+        //then
+        verify(snsLoginService).findSnsRedirectUrl(GOOGLE);
+
+    }
+
+    @Test
+    @DisplayName("SNS 로그인 성공 _ 토큰 발행")
+    void snsLoginSuccessUnitTest() throws Exception {
+        //given
+        String snsTestEmail = "lizzy@plgrim.com";
+        String snsType = "google";
+        String code = "code";
+        String token = "token";
+
+        User user = User.builder()
+                .userEmail(snsTestEmail)
+                .build();
+
+        //테스트다시
+        given(snsLoginService.createPostToken(any(), any())).willReturn(token);
+        given(snsLoginService.createGetRequest(any(), any())).willReturn(snsTestEmail);
+        given(userRepository.findByUserEmail(any())).willReturn(Optional.of(user));
+        given(jwtTokenProvider.createToken(any(), any())).willReturn(token);
+
+        //when
+        String result = userService.snsOauthLogin(snsType, code);
+
+        //when
+        assertThat(result).isEqualTo(token);
+    }
+
+    @Test
+    @DisplayName("SNS 로그인 실패 _ 회원 이메일 없음")
+    void snsLoginFailByNotExistUserUnitTest() throws Exception {
+        //given
+        String snsType = "google";
+        String code = "code";
+
+        given(userRepository.findByUserEmail(any())).willReturn(Optional.empty());
+
+        //when
+        CustomException exception = assertThrows(CustomException.class, () -> userService.snsOauthLogin(snsType, code));
+
+        //then
+        assertThat(exception.getErrorCode()).isEqualTo(EMPTY_USER_EMAIL);
+    }
 
 }

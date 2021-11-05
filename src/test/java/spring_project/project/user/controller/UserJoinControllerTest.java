@@ -17,12 +17,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import java.util.Collections;
@@ -52,9 +52,6 @@ class UserJoinControllerTest {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
-    SnsTokenProvider snsTokenProvider;
 
     @MockBean
     UserDetailsService userDetailsService;
@@ -96,7 +93,9 @@ class UserJoinControllerTest {
                         .phoneNumber("010-8710-1086")
                         .build())
                 .birth("19970717")
-                .roles(Collections.singletonList("ROLE_USER"))
+                .roles(Collections.singletonList(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
 
         //dto -> json

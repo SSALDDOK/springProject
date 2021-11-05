@@ -29,11 +29,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .build()
                 );
 
-//        return handleExceptionInternal(e, ResponseEntity.status(status)
-//                .body(e.getBindingResult()
-//                        .getAllErrors()
-//                        .get(0)
-//                        .getDefaultMessage()), headers, status, request);
 
     }
 
@@ -51,9 +46,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                         .build()
                 );
     }
-/*
 
-    @ExceptionHandler(ConstraintViolationException.class)
+   /* @ExceptionHandler(ConstraintViolationException.class)
     protected String handleCustomException(ConstraintViolationException e) {
         log.error("handleCustomException throw ConstraintViolationException : {}", e.getMessage());
         return e.getMessage();
@@ -63,8 +57,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected String handleCustomException(ValidationException e) {
         log.error("handleCustomException throw ValidationException : {}", e.getMessage());
         return e.getMessage();
-    }
-*/
-
+    }*/
 
 }

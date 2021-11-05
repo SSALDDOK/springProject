@@ -2,17 +2,12 @@ package spring_project.project.user.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring_project.project.user.application.UserService;
-import spring_project.project.user.controller.dto.OauthToken;
 import spring_project.project.user.controller.dto.UserLoginDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.commands.UserCommand;
-import spring_project.project.user.domain.service.Strategy;
-import spring_project.project.user.domain.service.StrategyFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static spring_project.project.common.enums.UserUrl.*;
@@ -28,7 +23,7 @@ public class UserLoginController {
     private final RequestMapper mapper;
 
     @Autowired
-    public UserLoginController(UserService userService, StrategyFactory strategyFactory) {
+    public UserLoginController(UserService userService) {
 
         this.userService = userService;
         this.mapper = new RequestMapper();
@@ -56,11 +51,11 @@ public class UserLoginController {
      * @return
      */
     @GetMapping(LOGIN_SNS_PATH)
-    public void googleLogin(HttpServletResponse response, @PathVariable String snsType) throws IOException {
+    public void googleLogin(@PathVariable String snsType) throws IOException {
 
-        Strategy strategy = userService.snsLogin(snsType);
+        userService.snsLogin(snsType);
 
-        response.sendRedirect(strategy.sendUrlQuery().toUriString());
+//        response.sendRedirect(redirectUrl);
     }
 
     /**
@@ -70,9 +65,9 @@ public class UserLoginController {
      * @return SNS Login 요청 결과로 받은 Json 형태의 String 문자열 (access_token, refresh_token 등)
      */
     @GetMapping(LOGIN_SNS_CALLBACK_PATH)
-    public ResponseEntity<OauthToken> googleLoginCallback(@PathVariable String snsType , @RequestParam String code) throws Exception {
+    public String googleLoginCallback(@PathVariable String snsType , @RequestParam String code) throws Exception {
 //        log.info(">> 소셜 로그인 API 서버로부터 받은 code :: {}", code);
-        return userService.oauthLogin(snsType,code);
+        return userService.snsOauthLogin(snsType,code);
 //        return new ResponseEntity<>(new OauthTokenResponseDTO(token, "bearer"), HttpStatus.OK);
 
     }

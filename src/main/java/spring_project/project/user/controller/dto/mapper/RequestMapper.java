@@ -4,13 +4,16 @@ import spring_project.project.user.controller.dto.UserJoinReqDTO;
 import spring_project.project.user.controller.dto.UserLoginDTO;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.domain.model.commands.UserCommand;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
+
+import java.util.Collections;
 
 public class RequestMapper {
 
-    public UserCommand toCommand(UserJoinReqDTO dto){
+    public UserCommand toCommand(UserJoinReqDTO dto) {
 
-        UserBasicInfo userBasicInfo = new UserBasicInfo(dto.getPhoneNumber(),dto.getAddress());
+        UserBasicInfo userBasicInfo = new UserBasicInfo(dto.getPhoneNumber(), dto.getAddress());
 
         return UserCommand.builder()
                 .userEmail(dto.getUserEmail())
@@ -23,9 +26,16 @@ public class RequestMapper {
 
     }
 
-    public UserCommand toCommand(UserModifyReqDTO dto){
+    public UserCommand toCommand(UserModifyReqDTO dto) {
 
-        UserBasicInfo userBasicInfo = new UserBasicInfo(dto.getPhoneNumber(),dto.getAddress());
+        UserBasicInfo userBasicInfo = new UserBasicInfo(dto.getPhoneNumber(), dto.getAddress());
+
+        //400에러일경우 dto가 잘못됬을경우
+        //유저롤로바꿔서 넣어주기
+        UserRole userRole = UserRole.builder()
+                .authority(dto.getRoles().toString())
+                .build();
+
 
         return UserCommand.builder()
                 .id(dto.getId())
@@ -36,11 +46,11 @@ public class RequestMapper {
                 .gender(dto.getGender())
                 .birth(dto.getBirth())
                 .userBasicInfo(userBasicInfo)
-                .roles(dto.getRoles())
+                .roles(Collections.singletonList(userRole))
                 .build();
     }
 
-    public UserCommand toCommand(UserLoginDTO dto){
+    public UserCommand toCommand(UserLoginDTO dto) {
         return UserCommand.builder()
                 .userEmail(dto.getUserEmail())
                 .password(dto.getPassword())

@@ -6,12 +6,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import spring_project.project.common.auth.CustomAuthenticationEntryPoint;
 import spring_project.project.common.auth.filter.JwtAuthenticationFilter;
-import spring_project.project.common.auth.filter.SnsAuthenticationFilter;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
 
 import static spring_project.project.common.enums.UserUrl.*;
 
@@ -19,21 +19,21 @@ import static spring_project.project.common.enums.UserUrl.*;
 @EnableWebSecurity(debug = true)//spring security를 적용
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //UserDetailsService를 상속받는 서비스 주입
-//    private final UserLoginSevice userLoginSevice;
     private final JwtTokenProvider jwtTokenProvider;
-    private final SnsTokenProvider snsTokenProvider;
 
-    public SecurityConfig(JwtTokenProvider jwtTokenProvider, SnsTokenProvider snsTokenProvider) {
-//        this.userLoginSevice = userLoginSevice;
+    public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
-        this.snsTokenProvider = snsTokenProvider;
     }
 
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
     }
 
 
@@ -54,17 +54,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider)
-                        , UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new SnsAuthenticationFilter(snsTokenProvider)
                         , UsernamePasswordAuthenticationFilter.class);
 //                .anyRequest().permitAll();
 
     }
 
 
-//    @Override
-//    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        //인증받는 서비스 부분
-//        auth.userDetailsService(userLoginSevice);
-//    }
 }

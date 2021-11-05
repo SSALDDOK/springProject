@@ -19,13 +19,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import spring_project.project.common.auth.provider.JwtTokenProvider;
-import spring_project.project.common.auth.provider.SnsTokenProvider;
 import spring_project.project.common.exception.CustomException;
 import spring_project.project.user.application.UserService;
 import spring_project.project.user.controller.dto.UserModifyReqDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.aggregates.User;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
+
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -58,9 +60,6 @@ public class UserModifyControllerTest {
     JwtTokenProvider jwtTokenProvider;
 
     @MockBean
-    SnsTokenProvider snsTokenProvider;
-
-    @MockBean
     UserDetailsService userDetailsService;
 
     @BeforeEach
@@ -86,6 +85,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         User user = User.builder()
@@ -99,6 +99,9 @@ public class UserModifyControllerTest {
                         .phoneNumber("010-871-1086")
                         .build())
                 .birth("19970717")
+                .roles(Collections.singletonList(UserRole.builder()
+                        .authority("ROLE_USER")
+                        .build()))
                 .build();
 
         String modifyMapper = objectMapper.writeValueAsString(modifyDto);
@@ -136,6 +139,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -169,6 +173,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -201,6 +206,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -233,6 +239,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -265,6 +272,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber(phoneNum)
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -298,6 +306,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -330,6 +339,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth(birth)
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -358,6 +368,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -386,6 +397,7 @@ public class UserModifyControllerTest {
                 .gender("F")
                 .address("incheon")
                 .phoneNumber("010-871-1086")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .birth("19970717")
                 .build();
 
@@ -418,6 +430,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
@@ -447,6 +460,7 @@ public class UserModifyControllerTest {
                 .address("incheon")
                 .phoneNumber("010-871-1086")
                 .birth("19970717")
+                .roles(Collections.singletonList("USER_ROLE"))
                 .build();
 
         String testMapper = objectMapper.writeValueAsString(failDto);
