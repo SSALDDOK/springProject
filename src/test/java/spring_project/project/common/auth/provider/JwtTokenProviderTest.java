@@ -81,6 +81,7 @@ class JwtTokenProviderTest {
     void jwtGetUserPkTest() {
         //given
         ReflectionTestUtils.setField(jwtTokenProvider, "SECRET_KEY", "LIZZY");
+
         String test = jwtTokenProvider.createToken(user.getUserEmail(), user.getRoles());
 
         //when

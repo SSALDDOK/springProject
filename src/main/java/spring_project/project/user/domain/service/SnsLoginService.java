@@ -11,22 +11,33 @@ import java.io.IOException;
 public class SnsLoginService {
 
     private final StrategyFactory strategyFactory;
-    private final HttpServletResponse response;
 
     @Autowired
-    public SnsLoginService(StrategyFactory strategyFactory,HttpServletResponse response) {
+    public SnsLoginService(StrategyFactory strategyFactory) {
         this.strategyFactory = strategyFactory;
-        this.response = response;
     }
 
+    /**
+     * 인가코드 받는 코드
+     *
+     * @param snsType
+     * @throws IOException
+     */
+    public String findSnsRedirectUrl(SnsType snsType) throws IOException {
 
-    public void findSnsRedirectUrl(SnsType snsType) throws IOException {
-
-         String redirectUrl = strategyFactory.findStrategy(snsType).sendUrlQuery();
-         response.sendRedirect(redirectUrl);
+        //컨트롤러단(화면전환)
+        return strategyFactory.findStrategy(snsType).sendUrlQuery();
 
     }
 
+    /**
+     * 인가코드를 이용해서 토큰 발행
+     *
+     * @param snsType
+     * @param code
+     * @return
+     * @throws Exception
+     */
     public String createPostToken(String snsType, String code) throws Exception {
 
         SnsType snsTypeName = SnsType.valueOf(snsType.toUpperCase());
@@ -37,6 +48,14 @@ public class SnsLoginService {
 
     }
 
+    /**
+     * sns api를 통해서 발행된 토큰으로 유저정보 가져오기
+     *
+     * @param snsType
+     * @param oauthAccessToken
+     * @return
+     * @throws Exception
+     */
     public String createGetRequest(String snsType, String oauthAccessToken) throws Exception {
 
         SnsType snsTypeName = SnsType.valueOf(snsType.toUpperCase());
@@ -46,6 +65,4 @@ public class SnsLoginService {
         return strategy.createGetRequest(oauthAccessToken);
 
     }
-
-
 }

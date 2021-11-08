@@ -71,25 +71,16 @@ public class Google implements Strategy {
         //requireNonNull은 해당 참조가 null일 경우 즉시 개발자에게 알리는 것
        return Objects.requireNonNull(response).getAccess_token();
 
-//        return ResponseEntity.ok(response);
     }
 
 
     public String createGetRequest(String oauthAccessToken) {
-
-//        String getOauthToken = Objects.requireNonNull(oauthToken.getBody()).getAccess_token();
-//        headers.add("Authorization", "Bearer " + getOauthToken);
-//        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-
         GoogleUser response = WebClient.create(GOOGLE_SNS_USERINFO_URL)
                 .get()
                 .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer " + oauthAccessToken))
                 .retrieve()
                 .bodyToFlux(GoogleUser.class)
                 .blockFirst();
-
-//        ResponseEntity<GoogleUser> result = restTemplate.exchange(GOOGLE_SNS_USERINFO_URL, HttpMethod.GET, request, GoogleUser.class);
-//        log.info("google response User result = {}",result);
 
         return Objects.requireNonNull(response).getEmail();
     }

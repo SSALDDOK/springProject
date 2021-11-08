@@ -44,6 +44,7 @@ public class User extends BaseTime implements UserDetails{
     @Column(name = "birth")
     private String birth; //생년월일
 
+    //데이터 업데이트 => 연관관계있는 것  => cascade type(DBA 질문)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name="uid")
     private List<UserRole> roles;

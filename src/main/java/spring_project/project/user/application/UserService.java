@@ -41,7 +41,7 @@ public class UserService {
 
 
     public UserService(UserJpaRepository userRepository, JwtTokenProvider jwtTokenProvider, PasswordEncoder encoder
-            ,SnsLoginService snsLoginService) {
+            , SnsLoginService snsLoginService) {
 
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
@@ -77,35 +77,36 @@ public class UserService {
 
     /**
      * sns 로그인 페이지 연결 서비스
+     *
      * @param snsType
      * @return
      */
 
-    public void snsLogin(String snsType) throws IOException {
+    public String snsLogin(String snsType) throws IOException {
 
         SnsType snsTypeName = SnsType.valueOf(snsType.toUpperCase());
 
-        snsLoginService.findSnsRedirectUrl(snsTypeName);
+        return snsLoginService.findSnsRedirectUrl(snsTypeName);
 
     }
 
     /**
      * sns 로그인 확인 서비스
-     *
      */
 
     public String snsOauthLogin(String snsType, String code) throws Exception {
-        String oauthAccessToken =  snsLoginService.createPostToken(snsType,code);
+        String oauthAccessToken = snsLoginService.createPostToken(snsType, code);
         String snsUserEmail = snsLoginService.createGetRequest(snsType, oauthAccessToken);
 
         User user = User.builder()
                 .userEmail(snsUserEmail)
                 .build();
 
+        //스트링형식으로
         User findOne = userRepository.findByUserEmail(user.getUserEmail())
                 .orElseThrow(() -> new CustomException(EMPTY_USER_EMAIL));
 
-        return jwtTokenProvider.createToken(findOne.getUserEmail(),findOne.getRoles());
+        return jwtTokenProvider.createToken(findOne.getUserEmail(), findOne.getRoles());
 
     }
 

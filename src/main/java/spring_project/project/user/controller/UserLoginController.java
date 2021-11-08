@@ -8,7 +8,9 @@ import spring_project.project.user.controller.dto.UserLoginDTO;
 import spring_project.project.user.controller.dto.mapper.RequestMapper;
 import spring_project.project.user.domain.model.commands.UserCommand;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 
 import static spring_project.project.common.enums.UserUrl.*;
 
@@ -30,7 +32,7 @@ public class UserLoginController {
     }
 
     /**
-     * 로그인 구현
+     * 로컬 로그인 구현
      *
      * @param
      * @return
@@ -46,28 +48,30 @@ public class UserLoginController {
     }
 
     /**
-     * 구글 로그인 페이지
+     * SNS 페이지 호출
      *
-     * @return
+     * @param snsType
+     * @throws IOException
      */
     @GetMapping(LOGIN_SNS_PATH)
-    public void googleLogin(@PathVariable String snsType) throws IOException {
+    public void socialLogin(HttpServletResponse response, @PathVariable String snsType) throws IOException {
 
-        userService.snsLogin(snsType);
+        //FM : 어->도 (용도에 따라서 나누기)
+        String redirectUrl = userService.snsLogin(snsType);
 
-//        response.sendRedirect(redirectUrl);
+        response.sendRedirect(redirectUrl);
     }
 
     /**
-     * Social Login API Server 요청에 의한 callback 을 처리
+     * Sns Login API Server 요청에 의한 callback 을 처리
      *
      * @param code API Server 로부터 넘어노는 code
      * @return SNS Login 요청 결과로 받은 Json 형태의 String 문자열 (access_token, refresh_token 등)
      */
     @GetMapping(LOGIN_SNS_CALLBACK_PATH)
-    public String googleLoginCallback(@PathVariable String snsType , @RequestParam String code) throws Exception {
-//        log.info(">> 소셜 로그인 API 서버로부터 받은 code :: {}", code);
-        return userService.snsOauthLogin(snsType,code);
+    public String socialLoginCallback(@PathVariable String snsType, @RequestParam String code) throws Exception {
+
+        return userService.snsOauthLogin(snsType, code);
 //        return new ResponseEntity<>(new OauthTokenResponseDTO(token, "bearer"), HttpStatus.OK);
 
     }
