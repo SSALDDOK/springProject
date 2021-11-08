@@ -35,17 +35,15 @@ class SnsLoginServiceTest {
         //given
         String googleUrl = "googleUrl";
         SnsType google = GOOGLE;
-        MockHttpServletResponse response = new MockHttpServletResponse();
-        SnsLoginService snsLoginService = new SnsLoginService(strategyFactory, response);
 
         given(strategyFactory.findStrategy(google)).willReturn(strategy);
         given(strategy.sendUrlQuery()).willReturn(googleUrl);
 
         //when
-        snsLoginService.findSnsRedirectUrl(google);
+       String result = snsLoginService.findSnsRedirectUrl(google);
 
         //then
-        assertThat(response.getRedirectedUrl()).isEqualTo(googleUrl);
+        assertThat(result).isEqualTo(googleUrl);
     }
 
     @Test

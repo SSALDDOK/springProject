@@ -80,41 +80,4 @@ public class User extends BaseTime implements UserDetails{
     public boolean isEnabled() {
         return true;
     }
-
-    //참고부분..? (엔티티부분으로 걷어내봐야한다.. 쪼개는연습을해야한다. (DB분리))
-//    @ElementCollection(fetch = FetchType.EAGER)
-//    @Builder.Default
-//    private final List<String> roles = new ArrayList<>();
-
-   /* @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public String getUsername() {
-        return userEmail;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }*/
 }

@@ -28,8 +28,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static spring_project.project.common.enums.ErrorCode.EMPTY_USER_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.NOT_MATCHES_PASSWORD;
 import static spring_project.project.common.enums.UserUrl.*;
@@ -145,13 +144,16 @@ public class UserLoginControllerTest {
     @DisplayName("SNS 로그인 페이지 불러오기_컨트롤러_성공")
     void snsLoginControllerSuccessUnitTest() throws Exception {
         //given
-        willDoNothing().given(userService).snsLogin(any());
+        String redirectUrl = "googleUrl";
+
+        given(userService.snsLogin(any())).willReturn(redirectUrl);
 
         //when
         //then
         mvc.perform(get(LOGIN_ROOT_PATH + LOGIN_SNS_PATH,"google"))
-                .andExpect(status().isOk())
+                .andExpect(status().is3xxRedirection())
                 .andDo(print())
+                .andExpect(redirectedUrl(redirectUrl))
                 .andReturn();
     }
 

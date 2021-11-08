@@ -111,14 +111,16 @@ public class UserServiceLoginTest {
     @DisplayName("SNS 로그인 페이지 성공")
     void snsLoginPageSuccessUnitTest() throws Exception {
         //given
-        willDoNothing().given(snsLoginService).findSnsRedirectUrl(any());
+        String google = "google";
+        String googleUrl ="googleUrl";
+
+        given(snsLoginService.findSnsRedirectUrl(any())).willReturn(googleUrl);
 
         //when
-        userService.snsLogin("google");
+        String result = userService.snsLogin(google);
 
         //then
-        verify(snsLoginService).findSnsRedirectUrl(GOOGLE);
-
+        assertThat(result).isEqualTo(googleUrl);
     }
 
     @Test
