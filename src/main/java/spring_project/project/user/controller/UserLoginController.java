@@ -10,7 +10,6 @@ import spring_project.project.user.domain.model.commands.UserCommand;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.http.HttpResponse;
 
 import static spring_project.project.common.enums.UserUrl.*;
 

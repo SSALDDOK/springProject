@@ -92,8 +92,8 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    @DisplayName("jwt 토큰에서 추출한 회원 인증 정보 조회")
-    void jwtGetAuthenticationTest() {
+    @DisplayName("jwt 토큰에서 추출한 회원 인증 정보 조회_성공")
+    void jwtGetAuthenticationSuccessTest() {
 
         //given
         ReflectionTestUtils.setField(jwtTokenProvider, "SECRET_KEY", "LIZZY");

@@ -1,6 +1,9 @@
 package spring_project.project.user.controller.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
@@ -8,12 +11,12 @@ import lombok.*;
 @AllArgsConstructor
 public class GoogleUser {
 
-        public String id;
-        public String email;
-        public Boolean verified_email;
-        public String name;
-        public String given_name;
-        public String family_name;
-        public String picture;
-        public String locale;
+    private String id;
+    private String email;
+    private Boolean verified_email;
+    private String name;
+    private String given_name;
+    private String family_name;
+    private String picture;
+    private String locale;
 }

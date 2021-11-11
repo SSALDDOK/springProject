@@ -9,9 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import spring_project.project.user.domain.model.aggregates.User;
+import spring_project.project.user.domain.model.entities.UserRole;
 import spring_project.project.user.domain.model.valueobjects.UserBasicInfo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +34,10 @@ class UserJpaRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        UserRole userRole = UserRole.builder()
+                .authority("ROLE_USER")
+                .build();
+
         //User 정보
         user = User.builder()
                 .userEmail("ezy@plgrim.com")
@@ -42,6 +48,7 @@ class UserJpaRepositoryTest {
                         .address("incheon")
                         .phoneNumber("010-8710-1086")
                         .build())
+                .roles(Collections.singletonList(userRole))
                 .birth("19970717")
                 .build();
 
@@ -148,7 +155,7 @@ class UserJpaRepositoryTest {
 
     @Test
     @DisplayName("회원목록 조회")
-    void PageFindAll() {
+    void pageFindAll() {
         //given
         Pageable pageable;
         pageable = PageRequest.of(0, 4);
@@ -163,6 +170,20 @@ class UserJpaRepositoryTest {
 
         //then
         assertTrue(result.size() <= pageable.getPageSize());
+    }
+
+    @Test
+    @DisplayName("회원권한 조회")
+    void findRolesById() {
+        //given
+        userRepository.save(user);
+
+        //when
+        Optional<User> result = userRepository.findRolesById(user.getId());
+
+        //then
+        assertFalse(result.isEmpty());
+        assertThat(result.get()).isEqualTo(user);
     }
 
 }

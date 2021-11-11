@@ -1,48 +1,27 @@
 package spring_project.project.user.infrastructure.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.jfr.ContentType;
-import okhttp3.Dispatcher;
-import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
-import spring_project.project.common.enums.SnsType;
 import spring_project.project.user.controller.dto.GoogleUser;
 import spring_project.project.user.controller.dto.OauthToken;
-import spring_project.project.user.domain.service.Strategy;
-import spring_project.project.user.domain.service.StrategyFactory;
 
 import java.io.IOException;
-import java.net.http.HttpHeaders;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static spring_project.project.common.enums.SnsType.GOOGLE;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GOOGLE SNS 테스트")

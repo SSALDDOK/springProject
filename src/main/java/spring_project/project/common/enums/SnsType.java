@@ -1,5 +1,7 @@
 package spring_project.project.common.enums;
 
 public enum SnsType {
-    GOOGLE
+    GOOGLE,
+    KAKAO,
+    NAVER
 }

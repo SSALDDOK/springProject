@@ -20,10 +20,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.given;
 import static spring_project.project.common.enums.ErrorCode.EMPTY_USER_EMAIL;
 import static spring_project.project.common.enums.ErrorCode.NOT_MATCHES_PASSWORD;
-import static spring_project.project.common.enums.SnsType.GOOGLE;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("로그인_서비스테스트")

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spring_project.project.common.enums.SnsType;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Service
